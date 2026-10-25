@@ -52,39 +52,41 @@ type Entry struct {
 
 // PackageFileName is the tarball name of a package version.
 func PackageFileName(m integration.Manifest) string {
-	return fmt.Sprintf("%s-%s.tar.gz", m.ID, m.Version)
+	return packageFileName(m.ID, m.Version)
 }
 
-// Build writes a tarball per package and index.json into outDir.
-func Build(pkgs []*integration.Package, source Source, outDir string) (*Index, error) {
+func packageFileName(id, version string) string {
+	return fmt.Sprintf("%s-%s.tar.gz", id, version)
+}
+
+func newEntry(m integration.Manifest, archive []byte) Entry {
+	sum := sha256.Sum256(archive)
+	return Entry{
+		ID:              m.ID,
+		Version:         m.Version,
+		ManifestVersion: m.ManifestVersion,
+		FuseScope:       m.FuseScope,
+		Title:           m.Title,
+		Description:     m.Description,
+		Categories:      m.Categories,
+		Signals:         m.Signals,
+		Package:         PackageFileName(m),
+		SHA256:          hex.EncodeToString(sum[:]),
+		Size:            len(archive),
+	}
+}
+
+// Build writes each item's tarball and index.json into outDir.
+func Build(items []Item, source Source, outDir string) (*Index, error) {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return nil, err
 	}
 	index := &Index{CatalogVersion: Version, Source: source, Integrations: []Entry{}}
-	for _, p := range pkgs {
-		archive, err := Archive(p)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", p.Dir, err)
-		}
-		name := PackageFileName(p.Manifest)
-		if err := os.WriteFile(filepath.Join(outDir, name), archive, 0o644); err != nil {
+	for _, it := range items {
+		if err := os.WriteFile(filepath.Join(outDir, it.Entry.Package), it.Archive, 0o644); err != nil {
 			return nil, err
 		}
-		sum := sha256.Sum256(archive)
-		m := p.Manifest
-		index.Integrations = append(index.Integrations, Entry{
-			ID:              m.ID,
-			Version:         m.Version,
-			ManifestVersion: m.ManifestVersion,
-			FuseScope:       m.FuseScope,
-			Title:           m.Title,
-			Description:     m.Description,
-			Categories:      m.Categories,
-			Signals:         m.Signals,
-			Package:         name,
-			SHA256:          hex.EncodeToString(sum[:]),
-			Size:            len(archive),
-		})
+		index.Integrations = append(index.Integrations, it.Entry)
 	}
 
 	var raw bytes.Buffer
