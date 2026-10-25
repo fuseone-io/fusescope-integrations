@@ -8,9 +8,9 @@
 | [AWS RDS (MySQL)](integrations/aws_rds_mysql.md) | `builtin-aws_rds_mysql` | 1.0.0 | `>=0.154.0` | logs, metrics | 2 |
 | [AWS RDS (PostgreSQL)](integrations/aws_rds_postgres.md) | `builtin-aws_rds_postgresql` | 1.0.0 | `>=0.154.0` | logs, metrics | 2 |
 | [Clickhouse](integrations/clickhouse.md) | `builtin-clickhouse` | 1.0.0 | `>=0.154.0` | logs, metrics | 1 |
-| [Google Cloud SQL](integrations/gcp_cloudsql.md) | `builtin-gcp_cloudsql` | 1.0.0 | `>=0.154.0` | logs, metrics | 1 |
+| [Google Cloud SQL](integrations/gcp_cloudsql.md) | `builtin-gcp_cloudsql` | 1.0.1 | `>=0.154.0` | logs, metrics | 1 |
 | [Mongo](integrations/mongo.md) | `builtin-mongo` | 1.0.0 | `>=0.154.0` | logs, metrics | 1 |
-| [MySQL](integrations/mysql.md) | `builtin-mysql` | 1.0.0 | `>=0.154.0` | logs, metrics | 1 |
+| [MySQL](integrations/mysql.md) | `builtin-mysql` | 1.0.1 | `>=0.154.0` | logs, metrics | 1 |
 | [Nginx](integrations/nginx.md) | `builtin-nginx` | 1.0.0 | `>=0.154.0` | logs | 0 |
 | [PostgreSQL](integrations/postgres.md) | `builtin-postgres` | 1.0.0 | `>=0.154.0` | logs, metrics | 1 |
 | [Redis](integrations/redis.md) | `builtin-redis` | 1.0.0 | `>=0.154.0` | logs, metrics | 1 |

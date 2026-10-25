@@ -7,7 +7,7 @@ Monitor Google Cloud SQL with metrics and logs
 | | |
 |---|---|
 | Id | `builtin-gcp_cloudsql` |
-| Version | 1.0.0 |
+| Version | 1.0.1 |
 | FuseScope | `>=0.154.0` |
 | Categories | Database |
 | Signals | logs, metrics |

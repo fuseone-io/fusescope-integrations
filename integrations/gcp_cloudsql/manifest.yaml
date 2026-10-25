@@ -1,6 +1,6 @@
 manifest_version: 1
 id: builtin-gcp_cloudsql
-version: 1.0.0
+version: 1.0.1
 fusescope: ">=0.154.0"
 title: "Google Cloud SQL"
 description: "Monitor Google Cloud SQL with metrics and logs"
