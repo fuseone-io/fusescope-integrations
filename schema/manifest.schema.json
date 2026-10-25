@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fuseone-io/fusescope-integrations/schema/manifest.schema.json",
+  "title": "FuseScope integration package manifest",
+  "description": "manifest.yaml at the root of integrations/<dir>/. Paths are relative to that directory.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "id",
+    "version",
+    "fusescope",
+    "title",
+    "description",
+    "author",
+    "icon",
+    "categories",
+    "signals",
+    "overview",
+    "configuration",
+    "assets",
+    "data_collected",
+    "connection_tests"
+  ],
+  "properties": {
+    "manifest_version": {
+      "description": "Format of this file. The backend reads the current and the previous version.",
+      "const": 1
+    },
+    "id": {
+      "description": "Integration id served by the API and stored with each installation. Never changes once released.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9_]+)+$"
+    },
+    "version": {
+      "description": "Package version, semver without a leading v. Bump it on any change to the package.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$"
+    },
+    "fusescope": {
+      "description": "FuseScope versions the package works with, as a semver constraint.",
+      "type": "string",
+      "minLength": 1
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "author": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "email", "homepage"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "email": { "type": "string" },
+        "homepage": { "type": "string" }
+      }
+    },
+    "icon": {
+      "type": "string",
+      "pattern": "^icon\\.(svg|png|jpe?g)$"
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "signals": {
+      "description": "Telemetry the integration collects. Must match the non-empty lists in data_collected.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["logs", "metrics", "traces"] }
+    },
+    "overview": { "const": "overview.md" },
+    "configuration": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "instructions"],
+        "properties": {
+          "title": { "type": "string", "minLength": 1 },
+          "instructions": { "$ref": "#/$defs/path", "pattern": "^config/[a-z0-9][a-z0-9_-]*\\.md$" }
+        }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["logs"],
+      "properties": {
+        "logs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pipelines"],
+          "properties": {
+            "pipelines": {
+              "description": "Log pipelines, one JSON object per file, in the format of the pipelines API.",
+              "type": ["array", "null"],
+              "items": { "$ref": "#/$defs/path", "pattern": "^assets/pipelines/[a-z0-9][a-z0-9_-]*\\.json$" }
+            }
+          }
+        },
+        "dashboards": {
+          "description": "Dashboards provisioned on install. Omitted and [] are served differently (null vs []).",
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "definition"],
+            "properties": {
+              "id": {
+                "description": "Stable id; part of the installed dashboard's slug.",
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$"
+              },
+              "definition": { "$ref": "#/$defs/path", "pattern": "^assets/dashboards/[a-z0-9][a-z0-9_-]*\\.json$" }
+            }
+          }
+        },
+        "alerts": {
+          "description": "Alert rules, one JSON object per file, in the format of the rules API.",
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/path", "pattern": "^assets/alerts/[a-z0-9][a-z0-9_-]*\\.json$" }
+        }
+      }
+    },
+    "data_collected": { "const": "data_collected.json" },
+    "connection_tests": {
+      "description": "How the backend detects incoming data. Metric names are derived from data_collected.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "logs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["attribute_key", "attribute_value"],
+          "properties": {
+            "attribute_key": { "type": "string", "minLength": 1 },
+            "attribute_value": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "path": {
+      "type": "string",
+      "not": { "pattern": "(^/|\\.\\.)" }
+    }
+  }
+}
