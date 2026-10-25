@@ -92,16 +92,24 @@ jobs:
             backend/go.sum
       - name: render packages
         run: go run ./cmd/fsint render --out "$RUNNER_TEMP/rendered"
-      - name: decode with the backend's types
+      - name: build catalog
+        run: go run ./cmd/fsint catalog --out "$RUNNER_TEMP/catalog" --ref "$GITHUB_REF" --commit "$GITHUB_SHA"
+      - name: compare with the backend
         env:
           FUSESCOPE_INTEGRATION_PACKAGES: ${{ runner.temp }}/rendered
+          FUSESCOPE_INTEGRATION_CATALOG: ${{ runner.temp }}/catalog
         run: |
           dir=backend/pkg/query-service/app/integrations
-          cp compat/_backend/packages_decode_test.go "$dir/"
-          tests=TestIntegrationPackagesDecode
-          if [ -d "$dir/builtin_integrations" ]; then
-            cp compat/_backend/packages_equal_test.go "$dir/"
-            tests="$tests|TestIntegrationPackagesEqualBuiltins"
+          if [ -d "$dir/catalog" ]; then
+            cp compat/_backend/catalog_compat_test.go "$dir/"
+            tests=TestCatalogCompat
+          else
+            cp compat/_backend/packages_decode_test.go "$dir/"
+            tests=TestIntegrationPackagesDecode
+            if [ -d "$dir/builtin_integrations" ]; then
+              cp compat/_backend/packages_equal_test.go "$dir/"
+              tests="$tests|TestIntegrationPackagesEqualBuiltins"
+            fi
           fi
           cd backend
           go test ./pkg/query-service/app/integrations/ -run "^($tests)\$" -v

@@ -125,11 +125,11 @@ CI ([`ci.yaml`](.github/workflows/ci.yaml)) runs on every pull request:
 | `go` | gofmt, `go mod tidy`, vet, tests |
 | `packages` | `fsint validate`: schema, files, dashboards, brand, snippets, icons; generated docs in sync |
 | `collector-snippets` | `otelcol-contrib validate` on every collector config, in the contrib image |
-| `backend-compat` | decodes every package with the types of `fusescope` `main`, as the API does. While the backend still embeds its own copy, also checks that both serve the same content. |
+| `backend-compat` | loads the catalog built from the branch with the loader of `fusescope` `main`, as the backend does at startup, and checks that every package version the backend already embeds renders unchanged. |
 | `licenses` | Go dependencies are MIT, BSD, ISC or Apache-2.0 |
 | `catalog-dry-run` | builds the catalog and uploads it as an artifact |
 
-Until the backend loads this catalog, a change to an integration must land in the backend's `builtin_integrations/` too, or `backend-compat` fails.
+A released package version is immutable: changing its files without bumping `version` fails `backend-compat` once the backend embeds that version. The backend picks up a new catalog release with `make integrations-catalog CATALOG_VERSION=vX.Y.Z`.
 
 ## Catalog and releases
 
