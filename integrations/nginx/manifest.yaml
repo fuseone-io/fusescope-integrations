@@ -1,0 +1,30 @@
+manifest_version: 1
+id: builtin-nginx
+version: 1.0.0
+fusescope: ">=0.154.0"
+title: "Nginx"
+description: "Monitor nginx using logs and metrics."
+author:
+  name: "FuseScope"
+  email: ""
+  homepage: "https://github.com/fuseone-io/fusescope"
+icon: icon.svg
+categories:
+  - "Ingress"
+  - "HTTP"
+signals:
+  - logs
+overview: overview.md
+configuration:
+  - title: "Prerequisites"
+    instructions: config/prerequisites.md
+  - title: "Collect Logs"
+    instructions: config/collect-logs.md
+assets:
+  logs:
+    pipelines: []
+data_collected: data_collected.json
+connection_tests:
+  logs:
+    attribute_key: "source"
+    attribute_value: "nginx"

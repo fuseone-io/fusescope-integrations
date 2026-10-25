@@ -1,0 +1,38 @@
+manifest_version: 1
+id: builtin-aws_rds_mysql
+version: 1.0.0
+fusescope: ">=0.154.0"
+title: "AWS RDS (MySQL)"
+description: "Monitor AWS RDS (MySQL) with metrics and logs"
+author:
+  name: "FuseScope"
+  email: ""
+  homepage: "https://github.com/fuseone-io/fusescope"
+icon: icon.svg
+categories:
+  - "Database"
+signals:
+  - logs
+  - metrics
+overview: overview.md
+configuration:
+  - title: "Prerequisites"
+    instructions: config/prerequisites.md
+  - title: "Collect Metrics"
+    instructions: config/collect-metrics.md
+  - title: "Collect Logs"
+    instructions: config/collect-logs.md
+assets:
+  logs:
+    pipelines: []
+  dashboards:
+    - id: overview
+      definition: assets/dashboards/overview.json
+    - id: db_metrics_overview
+      definition: assets/dashboards/db_metrics_overview.json
+  alerts: []
+data_collected: data_collected.json
+connection_tests:
+  logs:
+    attribute_key: "source"
+    attribute_value: "rds_mysql"
