@@ -1,0 +1,94 @@
+name: release
+
+# A tag v<catalog version> publishes the catalog. Run manually on a branch, it
+# only builds the catalog (dry run); publishing needs a tag.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  OCI_REPOSITORY: ghcr.io/${{ github.repository_owner }}/fusescope-integrations-catalog
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: test
+        run: go test ./...
+      - name: build catalog
+        run: go run ./cmd/fsint catalog --out dist --ref "$GITHUB_REF_NAME" --commit "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: catalog
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: catalog
+          path: dist
+      - uses: sigstore/cosign-installer@v4.1.2
+      # The index carries every package's sha256, so its signature covers the packages.
+      - name: sign index
+        working-directory: dist
+        run: cosign sign-blob --yes --bundle index.json.sigstore.json index.json
+      - name: verify signature
+        working-directory: dist
+        run: |
+          cosign verify-blob index.json \
+            --bundle index.json.sigstore.json \
+            --certificate-identity "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/release.yaml@${GITHUB_REF}" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com
+      - name: GitHub release
+        working-directory: dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --verify-tag --generate-notes
+          gh release upload "$TAG" index.json index.json.sigstore.json ./*.tar.gz --clobber
+      - uses: oras-project/setup-oras@v2.0.2
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: push OCI artifact
+        id: oci
+        working-directory: dist
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          files=(index.json:application/vnd.fusescope.integrations.index.v1+json
+                 index.json.sigstore.json:application/vnd.dev.sigstore.bundle.v0.3+json)
+          for pkg in ./*.tar.gz; do
+            files+=("${pkg#./}:application/vnd.fusescope.integrations.package.v1.tar+gzip")
+          done
+          oras push --format go-template='{{.digest}}' \
+            --artifact-type application/vnd.fusescope.integrations.catalog.v1 \
+            "${OCI_REPOSITORY}:${TAG#v}" "${files[@]}" > digest
+          echo "digest=$(cat digest)" >> "$GITHUB_OUTPUT"
+      - name: sign OCI artifact
+        run: cosign sign --yes "${OCI_REPOSITORY}@${DIGEST}"
+        env:
+          DIGEST: ${{ steps.oci.outputs.digest }}
