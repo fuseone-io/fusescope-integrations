@@ -1,0 +1,1433 @@
+{
+  "schemaVersion": "v6",
+  "image": "",
+  "name": "",
+  "generateName": true,
+  "tags": [
+    {
+      "key": "tag",
+      "value": "gcp"
+    },
+    {
+      "key": "tag",
+      "value": "cloudsql"
+    },
+    {
+      "key": "tag",
+      "value": "database"
+    }
+  ],
+  "spec": {
+    "display": {
+      "name": "Cloud SQL overview",
+      "description": "CPU, memory, disk, network, connections and replication of Google Cloud SQL instances.\n"
+    },
+    "variables": [
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "display": {
+            "name": "database_id",
+            "description": "Cloud SQL instances, as project:instance"
+          },
+          "allowAllValue": true,
+          "allowMultiple": true,
+          "customAllValue": "",
+          "capturingRegexp": "",
+          "sort": "alphabetical-asc",
+          "plugin": {
+            "kind": "signoz/QueryVariable",
+            "spec": {
+              "queryValue": "SELECT JSONExtractString(labels, 'database_id') AS `database_id`\nFROM signoz_metrics.distributed_time_series_v4_1day\nWHERE metric_name = 'cloudsql.googleapis.com/database/up'\nGROUP BY `database_id`"
+            }
+          },
+          "name": "database_id"
+        }
+      }
+    ],
+    "panels": {
+      "664f626f-1fe3-520a-89d4-58163f75c4f5": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "CPU utilization",
+            "description": "Reserved CPU in use."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "percentunit",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/cpu/utilization",
+                        "temporality": "",
+                        "timeAggregation": "avg",
+                        "spaceAggregation": "avg",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "34153dec-b1c7-5249-b018-f868dfc7644f": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Memory utilization",
+            "description": "Memory in use, as a fraction of the instance memory."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "percentunit",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/memory/utilization",
+                        "temporality": "",
+                        "timeAggregation": "avg",
+                        "spaceAggregation": "avg",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "c1fd5e7f-563f-513d-a09e-675baf483fb6": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Disk utilization",
+            "description": "Data disk in use, as a fraction of the disk quota."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "percentunit",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/disk/utilization",
+                        "temporality": "",
+                        "timeAggregation": "avg",
+                        "spaceAggregation": "avg",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "44e2504b-5296-5d8c-9c9d-c7316e42d7c0": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Disk bytes used",
+            "description": "Data disk usage."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "bytes",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/disk/bytes_used",
+                        "temporality": "",
+                        "timeAggregation": "avg",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "dd5f2b2f-343f-54c3-ba32-ea714fe9bf7d": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Disk read operations",
+            "description": "Data disk read IO operations per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "ops",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/disk/read_ops_count",
+                        "temporality": "",
+                        "timeAggregation": "rate",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "aab5b370-5b04-5423-a142-dcfcabc8a929": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Disk write operations",
+            "description": "Data disk write IO operations per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "ops",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/disk/write_ops_count",
+                        "temporality": "",
+                        "timeAggregation": "rate",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "dcfbf3af-ad5a-5215-9b69-e9fd8606b7ef": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Network received",
+            "description": "Bytes received per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "binBps",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/network/received_bytes_count",
+                        "temporality": "",
+                        "timeAggregation": "rate",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "0c1125a7-4d06-5c24-b449-aa27a559e7f4": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Network sent",
+            "description": "Bytes sent per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "binBps",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/network/sent_bytes_count",
+                        "temporality": "",
+                        "timeAggregation": "rate",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "1d949061-df76-5472-a487-6c70cd6f3048": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Connections (MySQL, SQL Server)",
+            "description": "Connections to the instance."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/network/connections",
+                        "temporality": "",
+                        "timeAggregation": "avg",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "f4737f37-6a6f-54bc-a223-dd6779409533": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Backends (PostgreSQL)",
+            "description": "Connections per database."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/postgresql/num_backends",
+                        "temporality": "",
+                        "timeAggregation": "avg",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      },
+                      {
+                        "name": "database",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}} {{database}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "c33feaa6-6318-59b2-8f0e-f5862eaaf64e": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Queries (MySQL)",
+            "description": "Statements executed per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "reqps",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/mysql/queries",
+                        "temporality": "",
+                        "timeAggregation": "rate",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "4459df6e-a502-561d-b239-597b106cb3b0": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Transactions (PostgreSQL)",
+            "description": "Committed and rolled back transactions per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "ops",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/postgresql/transaction_count",
+                        "temporality": "",
+                        "timeAggregation": "rate",
+                        "spaceAggregation": "sum",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      },
+                      {
+                        "name": "transaction_type",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}} {{transaction_type}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "58263341-d5dc-59bd-9e51-aea6c32917b5": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Replica lag",
+            "description": "Seconds a read replica is behind its primary."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "s",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/replication/replica_lag",
+                        "temporality": "",
+                        "timeAggregation": "max",
+                        "spaceAggregation": "max",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      },
+      "86042d7d-746e-5e3c-af65-edf95893eb5b": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Up",
+            "description": "1 when the instance is serving."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": null,
+                "softMax": null,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "name": "A",
+                "plugin": {
+                  "kind": "signoz/BuilderQuery",
+                  "spec": {
+                    "name": "A",
+                    "stepInterval": 60,
+                    "signal": "metrics",
+                    "source": "",
+                    "aggregations": [
+                      {
+                        "metricName": "cloudsql.googleapis.com/database/up",
+                        "temporality": "",
+                        "timeAggregation": "min",
+                        "spaceAggregation": "min",
+                        "reduceTo": "avg"
+                      }
+                    ],
+                    "disabled": false,
+                    "filter": {
+                      "expression": "database_id IN $database_id"
+                    },
+                    "groupBy": [
+                      {
+                        "name": "database_id",
+                        "signal": "",
+                        "fieldContext": "",
+                        "fieldDataType": "string"
+                      }
+                    ],
+                    "order": [],
+                    "having": {
+                      "expression": ""
+                    },
+                    "functions": [],
+                    "legend": "{{database_id}}"
+                  }
+                }
+              }
+            }
+          ],
+          "links": []
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/664f626f-1fe3-520a-89d4-58163f75c4f5"
+              }
+            },
+            {
+              "x": 6,
+              "y": 0,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/34153dec-b1c7-5249-b018-f868dfc7644f"
+              }
+            },
+            {
+              "x": 0,
+              "y": 3,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/c1fd5e7f-563f-513d-a09e-675baf483fb6"
+              }
+            },
+            {
+              "x": 6,
+              "y": 3,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/44e2504b-5296-5d8c-9c9d-c7316e42d7c0"
+              }
+            },
+            {
+              "x": 0,
+              "y": 6,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/dd5f2b2f-343f-54c3-ba32-ea714fe9bf7d"
+              }
+            },
+            {
+              "x": 6,
+              "y": 6,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/aab5b370-5b04-5423-a142-dcfcabc8a929"
+              }
+            },
+            {
+              "x": 0,
+              "y": 9,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/dcfbf3af-ad5a-5215-9b69-e9fd8606b7ef"
+              }
+            },
+            {
+              "x": 6,
+              "y": 9,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/0c1125a7-4d06-5c24-b449-aa27a559e7f4"
+              }
+            },
+            {
+              "x": 0,
+              "y": 12,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/1d949061-df76-5472-a487-6c70cd6f3048"
+              }
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/f4737f37-6a6f-54bc-a223-dd6779409533"
+              }
+            },
+            {
+              "x": 0,
+              "y": 15,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/c33feaa6-6318-59b2-8f0e-f5862eaaf64e"
+              }
+            },
+            {
+              "x": 6,
+              "y": 15,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/4459df6e-a502-561d-b239-597b106cb3b0"
+              }
+            },
+            {
+              "x": 0,
+              "y": 18,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/58263341-d5dc-59bd-9e51-aea6c32917b5"
+              }
+            },
+            {
+              "x": 6,
+              "y": 18,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/86042d7d-746e-5e3c-af65-edf95893eb5b"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "duration": "",
+    "refreshInterval": "",
+    "links": []
+  }
+}

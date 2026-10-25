@@ -1,0 +1,155 @@
+{
+  "logs": [
+    {
+      "name": "Timestamp",
+      "path": "timestamp",
+      "type": "timestamp"
+    },
+    {
+      "name": "Severity Text",
+      "path": "severity_text",
+      "type": "string"
+    },
+    {
+      "name": "Severity Number",
+      "path": "severity_number",
+      "type": "number"
+    },
+    {
+      "name": "Log Name",
+      "path": "resource.cloud.resource_id",
+      "type": "string"
+    },
+    {
+      "name": "Instance",
+      "path": "resource.gcp.label.database_id",
+      "type": "string"
+    },
+    {
+      "name": "Project",
+      "path": "resource.gcp.project",
+      "type": "string"
+    },
+    {
+      "name": "Region",
+      "path": "resource.gcp.label.region",
+      "type": "string"
+    },
+    {
+      "name": "Thread ID",
+      "path": "attributes.thread_id",
+      "type": "string"
+    },
+    {
+      "name": "Error Code",
+      "path": "attributes.error_code",
+      "type": "string"
+    },
+    {
+      "name": "Subsystem",
+      "path": "attributes.subsystem",
+      "type": "string"
+    },
+    {
+      "name": "Process ID",
+      "path": "attributes.pid",
+      "type": "string"
+    },
+    {
+      "name": "Database",
+      "path": "attributes.db_name",
+      "type": "string"
+    },
+    {
+      "name": "User",
+      "path": "attributes.db_user",
+      "type": "string"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "cloudsql.googleapis.com/database/cpu/utilization",
+      "type": "gauge",
+      "unit": "fraction",
+      "description": "Fraction of the reserved CPU in use."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/memory/utilization",
+      "type": "gauge",
+      "unit": "fraction",
+      "description": "Fraction of the instance memory in use."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/disk/utilization",
+      "type": "gauge",
+      "unit": "fraction",
+      "description": "Fraction of the data disk quota in use."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/disk/bytes_used",
+      "type": "gauge",
+      "unit": "Bytes",
+      "description": "Data disk usage."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/disk/read_ops_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "Delta count of data disk read IO operations."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/disk/write_ops_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "Delta count of data disk write IO operations."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/network/received_bytes_count",
+      "type": "sum",
+      "unit": "Bytes",
+      "description": "Delta count of bytes received through the network."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/network/sent_bytes_count",
+      "type": "sum",
+      "unit": "Bytes",
+      "description": "Delta count of bytes sent through the network."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/network/connections",
+      "type": "gauge",
+      "unit": "number",
+      "description": "Connections to the instance. MySQL and SQL Server only."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/postgresql/num_backends",
+      "type": "gauge",
+      "unit": "number",
+      "description": "Connections per database. PostgreSQL only."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/postgresql/transaction_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "Delta count of committed and rolled back transactions. PostgreSQL only."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/mysql/queries",
+      "type": "sum",
+      "unit": "number",
+      "description": "Delta count of statements executed by the server. MySQL only."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/replication/replica_lag",
+      "type": "gauge",
+      "unit": "seconds",
+      "description": "Seconds a read replica is behind its primary."
+    },
+    {
+      "name": "cloudsql.googleapis.com/database/up",
+      "type": "gauge",
+      "unit": "number",
+      "description": "1 when the instance is up, 0 otherwise."
+    }
+  ]
+}

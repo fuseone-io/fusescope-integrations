@@ -1,0 +1,38 @@
+manifest_version: 1
+id: builtin-gcp_cloudsql
+version: 1.0.0
+fusescope: ">=0.154.0"
+title: "Google Cloud SQL"
+description: "Monitor Google Cloud SQL with metrics and logs"
+author:
+  name: "FuseScope"
+  email: ""
+  homepage: "https://github.com/fuseone-io/fusescope"
+icon: icon.svg
+categories:
+  - "Database"
+signals:
+  - logs
+  - metrics
+overview: overview.md
+configuration:
+  - title: "Prerequisites"
+    instructions: config/prerequisites.md
+  - title: "Collect Metrics"
+    instructions: config/collect-metrics.md
+  - title: "Collect Logs"
+    instructions: config/collect-logs.md
+assets:
+  logs:
+    pipelines:
+      - assets/pipelines/mysql_error_log.json
+      - assets/pipelines/postgres_log.json
+  dashboards:
+    - id: overview
+      definition: assets/dashboards/overview.json
+  alerts: []
+data_collected: data_collected.json
+connection_tests:
+  logs:
+    attribute_key: "source"
+    attribute_value: "gcp_cloudsql"

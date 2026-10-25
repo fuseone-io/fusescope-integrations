@@ -1,0 +1,69 @@
+{
+  "id": "gcp-cloudsql-postgres-log",
+  "orderId": 2,
+  "name": "Cloud SQL PostgreSQL log",
+  "alias": "cloudsql-postgres",
+  "description": "Parses the PostgreSQL log of Cloud SQL instances: process id, database and user.",
+  "enabled": true,
+  "filter": {
+    "op": "AND",
+    "items": [
+      {
+        "key": {
+          "key": "source",
+          "dataType": "string",
+          "type": "tag",
+          "isColumn": false,
+          "isJSON": false
+        },
+        "op": "=",
+        "value": "gcp_cloudsql"
+      },
+      {
+        "key": {
+          "key": "cloud.resource_id",
+          "dataType": "string",
+          "type": "resource",
+          "isColumn": false,
+          "isJSON": false
+        },
+        "op": "contains",
+        "value": "postgres.log"
+      }
+    ]
+  },
+  "config": [
+    {
+      "orderId": 1,
+      "enabled": true,
+      "type": "regex_parser",
+      "id": "parse-log-line",
+      "name": "Parse log line",
+      "output": "move-message",
+      "on_error": "send",
+      "parse_from": "body",
+      "parse_to": "attributes",
+      "regex": "^(?:\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)? [A-Za-z]+ )?\\[(?P<pid>\\d+)\\]: \\[\\d+-\\d+\\] db=(?P<db_name>[^,]*),user=(?P<db_user>\\S*)\\s+(?P<level>[A-Z0-9]+):\\s+(?P<message>[\\s\\S]*)$"
+    },
+    {
+      "orderId": 2,
+      "enabled": true,
+      "type": "move",
+      "id": "move-message",
+      "name": "Move message to body",
+      "output": "remove-level",
+      "on_error": "send",
+      "from": "attributes.message",
+      "to": "body"
+    },
+    {
+      "orderId": 3,
+      "enabled": true,
+      "type": "remove",
+      "id": "remove-level",
+      "name": "Remove parsed level",
+      "on_error": "send",
+      "field": "attributes.level"
+    }
+  ]
+}
