@@ -97,7 +97,11 @@ func TestArchiveIsReproducibleAndHoldsOnlyReferencedFiles(t *testing.T) {
 
 func TestBuildWritesIndexWithChecksums(t *testing.T) {
 	out := t.TempDir()
-	index, err := Build([]*integration.Package{demoPackage(t)}, Source{Repository: "r", Ref: "v1", Commit: "c"}, out)
+	items, err := Plan([]*integration.Package{demoPackage(t)}, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	index, err := Build(items, Source{Repository: "r", Ref: "v1", Commit: "c"}, out)
 	if err != nil {
 		t.Fatal(err)
 	}

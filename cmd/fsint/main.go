@@ -23,7 +23,8 @@ commands:
   validate   check every package (schema, files, dashboards, snippets, brand)
   render     write each package as the API serves it, <out>/<id>.json
   snippets   write full collector configs and their env, <out>/<distribution>/<name>.{yaml,env}
-  catalog    build index.json and one tarball per package
+  catalog    build index.json and the tarballs: the tree's package versions
+             plus, with -previous, every version the previous release holds
   docs       generate docs/, or with -check fail when it is out of date
 `
 
@@ -152,6 +153,8 @@ func buildCatalog(args []string) error {
 	repo := fs.String("repository", "fuseone-io/fusescope-integrations", "source repository")
 	ref := fs.String("ref", "", "git ref the catalog is built from")
 	commit := fs.String("commit", "", "git commit the catalog is built from")
+	previous := fs.String("previous", "", "directory holding the previous release, its signature already verified; its versions are carried over")
+	retiredFile := fs.String("retired", catalog.RetiredFile, "package versions to drop from the catalog")
 	pkgs, err := load(fs, args)
 	if err != nil {
 		return err
@@ -162,12 +165,29 @@ func buildCatalog(args []string) error {
 		}
 		return errors.New("refusing to build a catalog from invalid packages")
 	}
-	index, err := catalog.Build(pkgs, catalog.Source{Repository: *repo, Ref: *ref, Commit: *commit}, *out)
+	retired, err := catalog.ReadRetired(*retiredFile)
 	if err != nil {
 		return err
 	}
-	for _, e := range index.Integrations {
-		fmt.Printf("%s %s %s %s\n", e.ID, e.Version, e.SHA256, e.Package)
+	var release *catalog.Release
+	if *previous != "" {
+		if release, err = catalog.ReadRelease(os.DirFS(*previous)); err != nil {
+			return fmt.Errorf("previous release: %w", err)
+		}
+	}
+	items, err := catalog.Plan(pkgs, release, retired)
+	if err != nil {
+		return err
+	}
+	if _, err := catalog.Build(items, catalog.Source{Repository: *repo, Ref: *ref, Commit: *commit}, *out); err != nil {
+		return err
+	}
+	for _, it := range items {
+		origin := "new"
+		if it.Carried {
+			origin = "released"
+		}
+		fmt.Printf("%s %s %s %s %s\n", it.Entry.ID, it.Entry.Version, it.Entry.SHA256, it.Entry.Package, origin)
 	}
 	return nil
 }
