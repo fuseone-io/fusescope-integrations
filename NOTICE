@@ -1,0 +1,8 @@
+FuseScope integrations
+Copyright (c) 2026-present FuseOne
+
+The integration packages under integrations/ were moved from the FuseScope
+backend (https://github.com/fuseone-io/fusescope, MIT), which is a fork of
+SigNoz (https://github.com/SigNoz/signoz). The portions that originate in
+SigNoz were released by SigNoz Inc. under the MIT license; their copyright
+notice is kept in LICENSE.
