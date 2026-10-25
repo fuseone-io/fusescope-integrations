@@ -1,0 +1,137 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  OTELCOL_CONTRIB_IMAGE: otel/opentelemetry-collector-contrib:0.163.2
+
+jobs:
+  go:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: gofmt
+        run: |
+          files=$(gofmt -l $(git ls-files '*.go'))
+          test -z "$files" || (echo "$files"; exit 1)
+      - name: go mod tidy
+        run: go mod tidy -diff
+      - name: vet
+        run: go vet ./...
+      - name: test
+        run: go test ./...
+
+  packages:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: validate
+        run: go run ./cmd/fsint validate
+      - name: docs in sync
+        run: go run ./cmd/fsint docs -check
+
+  collector-snippets:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: extract snippets
+        run: go run ./cmd/fsint snippets --out "$RUNNER_TEMP/snippets"
+      - name: otelcol-contrib validate
+        run: |
+          dir="$RUNNER_TEMP/snippets"
+          docker pull -q "$OTELCOL_CONTRIB_IMAGE"
+          status=0
+          for config in "$dir"/contrib/*.yaml; do
+            name=$(basename "$config" .yaml)
+            if docker run --rm --env-file "$dir/contrib/$name.env" -v "$dir/contrib:/cfg:ro" \
+              "$OTELCOL_CONTRIB_IMAGE" validate --config="/cfg/$name.yaml"; then
+              echo "ok $name"
+            else
+              echo "::error title=otelcol-contrib validate::$name"
+              status=1
+            fi
+          done
+          for config in "$dir"/fusescope/*.yaml; do
+            [ -e "$config" ] || continue
+            echo "::notice title=not validated::$(basename "$config" .yaml) needs fusescope-otel-collector, which has no validate command"
+          done
+          exit $status
+
+  backend-compat:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: fuseone-io/fusescope
+          ref: main
+          path: backend
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: |
+            go.sum
+            backend/go.sum
+      - name: render packages
+        run: go run ./cmd/fsint render --out "$RUNNER_TEMP/rendered"
+      - name: decode with the backend's types
+        env:
+          FUSESCOPE_INTEGRATION_PACKAGES: ${{ runner.temp }}/rendered
+        run: |
+          dir=backend/pkg/query-service/app/integrations
+          cp compat/_backend/packages_decode_test.go "$dir/"
+          tests=TestIntegrationPackagesDecode
+          if [ -d "$dir/builtin_integrations" ]; then
+            cp compat/_backend/packages_equal_test.go "$dir/"
+            tests="$tests|TestIntegrationPackagesEqualBuiltins"
+          fi
+          cd backend
+          go test ./pkg/query-service/app/integrations/ -run "^($tests)\$" -v
+
+  licenses:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: install go-licenses
+        run: go install github.com/google/go-licenses/v2@v2.0.1
+      - name: check
+        run: |
+          go-licenses check ./... \
+            --allowed_licenses=MIT,BSD-2-Clause,BSD-3-Clause,ISC,Apache-2.0 \
+            --ignore github.com/fuseone-io/fusescope-integrations
+
+  catalog-dry-run:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: build catalog
+        run: go run ./cmd/fsint catalog --out dist --ref "$GITHUB_REF" --commit "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: catalog
+          path: dist/
+          if-no-files-found: error
