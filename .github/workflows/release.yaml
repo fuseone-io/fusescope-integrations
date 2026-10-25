@@ -25,8 +25,16 @@ jobs:
           go-version-file: go.mod
       - name: test
         run: go test ./...
+      - uses: sigstore/cosign-installer@v4.1.2
+      - name: previous release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current=""
+          [ "$GITHUB_REF_TYPE" = tag ] && current=$GITHUB_REF_NAME
+          scripts/previous-release.sh "$RUNNER_TEMP/previous" $current
       - name: build catalog
-        run: go run ./cmd/fsint catalog --out dist --ref "$GITHUB_REF_NAME" --commit "$GITHUB_SHA"
+        run: go run ./cmd/fsint catalog --out dist --ref "$GITHUB_REF_NAME" --commit "$GITHUB_SHA" --previous "$RUNNER_TEMP/previous"
       - uses: actions/upload-artifact@v7
         with:
           name: catalog

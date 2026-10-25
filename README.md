@@ -33,6 +33,8 @@ integrations/<dir>/
   icon.svg                    or icon.png / icon.jpg
 schema/manifest.schema.json   JSON Schema of manifest.yaml
 cmd/fsint                     validate, render, snippets, catalog, docs
+retired.yaml                  package versions dropped from the catalog
+scripts/previous-release.sh   downloads and verifies the previous catalog release
 docs/                         generated reference pages
 ```
 
@@ -79,7 +81,7 @@ connection_tests:
 |---|---|
 | `manifest_version` | Format of the manifest, `1`. The backend reads the current and the previous format. |
 | `id` | `<namespace>-<name>`. The id the API serves and each installation stores; it never changes. This catalog uses the `builtin` namespace. |
-| `version` | Package version (semver). Bump it on every change: a released version is immutable. |
+| `version` | Package version (semver). Bump it on every change: a released version is immutable and stays in the catalog. |
 | `fusescope` | FuseScope versions the package works with, a semver constraint. |
 | `title`, `description`, `author`, `categories` | Shown on the Integrations page. |
 | `icon` | `icon.svg`, `icon.png` or `icon.jpg`. Served as a data URI. SVGs must not hold scripts, event handlers or external references. |
@@ -125,15 +127,15 @@ CI ([`ci.yaml`](.github/workflows/ci.yaml)) runs on every pull request:
 | `go` | gofmt, `go mod tidy`, vet, tests |
 | `packages` | `fsint validate`: schema, files, dashboards, brand, snippets, icons; generated docs in sync |
 | `collector-snippets` | `otelcol-contrib validate` on every collector config, in the contrib image |
-| `backend-compat` | loads the catalog built from the branch with the loader of `fusescope` `main`, as the backend does at startup, and checks that every package version the backend already embeds renders unchanged. |
+| `backend-compat` | loads the catalog built from the branch with the loader of `fusescope` `main`, as the backend does at startup, and checks that every package version the backend embeds is still in it. |
 | `licenses` | Go dependencies are MIT, BSD, ISC or Apache-2.0 |
-| `catalog-dry-run` | builds the catalog and uploads it as an artifact |
+| `catalog-dry-run` | builds the catalog on top of the latest release and uploads it as an artifact |
 
-A released package version is immutable: changing its files without bumping `version` fails `backend-compat` once the backend embeds that version. The backend picks up a new catalog release with `make integrations-catalog CATALOG_VERSION=vX.Y.Z`.
+A released package version is immutable: changing its files without bumping `version` fails the catalog build in `catalog-dry-run` and `backend-compat`. The backend picks up a new catalog release with `make integrations-catalog CATALOG_VERSION=vX.Y.Z`.
 
 ## Catalog and releases
 
-`fsint catalog` writes, for each package, a reproducible `<id>-<version>.tar.gz` holding the files its manifest references, plus `index.json`:
+`fsint catalog` writes a reproducible `<id>-<version>.tar.gz` per package version, holding the files its manifest references, plus `index.json`, sorted by id then semver:
 
 ```json
 {
@@ -149,9 +151,35 @@ A released package version is immutable: changing its files without bumping `ver
 }
 ```
 
+Installations pin a package version, so a release keeps every version of the previous one. With `-previous <dir>`, `fsint catalog` reads that release, checks each tarball against the sha256 and size in its index, and:
+
+- carries every released version over **byte for byte**, same sha256, including packages no longer in `integrations/`;
+- fails when the tree holds a released version whose files differ from the released tarball (contents are compared, not gzip bytes);
+- adds the tree's new versions.
+
+[`scripts/previous-release.sh`](scripts/previous-release.sh) `<dir> [<tag>]` downloads the latest release older than `<tag>` (by default the latest) and verifies its `index.json` with cosign against the `release.yaml` identity of that release's tag. It needs `gh` and `cosign`:
+
+```sh
+scripts/previous-release.sh /tmp/previous
+go run ./cmd/fsint catalog --out dist --previous /tmp/previous
+```
+
+### Retiring a version
+
+A version leaves the catalog only when no supported backend release can be pinned to it. List it in [`retired.yaml`](retired.yaml) as `<id>@<version>`:
+
+```yaml
+retired:
+  - builtin-mysql@1.0.1
+```
+
+The next release drops it; a retired version still in `integrations/` fails the build. Keep the entry, so the version is never published again. `backend-compat` fails while the backend's embedded snapshot still holds it.
+
+### Release workflow
+
 Pushing a `v*` tag runs [`release.yaml`](.github/workflows/release.yaml):
 
-1. builds the catalog;
+1. builds the catalog on top of the previous release;
 2. signs `index.json` with cosign keyless (GitHub OIDC), writing `index.json.sigstore.json`; the index holds each package's sha256, so the signature covers the packages;
 3. uploads `index.json`, the bundle and the tarballs to the GitHub release;
 4. pushes them as an OCI artifact, `ghcr.io/fuseone-io/fusescope-integrations-catalog:<version>`, and signs it.

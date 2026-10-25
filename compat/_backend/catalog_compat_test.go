@@ -14,9 +14,9 @@ import (
 // fuseone-io/fusescope-integrations, once the backend loads the signed catalog;
 // FUSESCOPE_INTEGRATION_CATALOG holds the output of `fsint catalog`.
 //
-// The backend's loader must accept every package, and a package version the
-// backend already embeds must render to the same document: released versions
-// are immutable.
+// The backend's loader must accept every package, and every package version
+// the backend embeds must still be in the catalog: installations pin it.
+// `fsint catalog` checks that released versions are unchanged.
 func TestCatalogCompat(t *testing.T) {
 	dir := os.Getenv("FUSESCOPE_INTEGRATION_CATALOG")
 	if dir == "" {
@@ -41,19 +41,13 @@ func TestCatalogCompat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	released := map[string]string{}
-	for _, pkg := range embedded.Packages {
-		released[pkg.ID+"@"+pkg.Version] = string(pkg.Document)
-	}
+	inCandidate := map[string]bool{}
 	for _, pkg := range candidate.Packages {
-		key := pkg.ID + "@" + pkg.Version
-		document, ok := released[key]
-		if !ok {
-			t.Logf("%s is not in the backend's snapshot yet", key)
-			continue
-		}
-		if document != string(pkg.Document) {
-			t.Errorf("%s differs from the released package the backend embeds; bump its version", key)
+		inCandidate[pkg.ID+"@"+pkg.Version] = true
+	}
+	for _, pkg := range embedded.Packages {
+		if key := pkg.ID + "@" + pkg.Version; !inCandidate[key] {
+			t.Errorf("%s is embedded by the backend but missing from the catalog; retire a version only once no backend release supports it", key)
 		}
 	}
 }
