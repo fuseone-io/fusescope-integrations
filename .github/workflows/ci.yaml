@@ -92,8 +92,13 @@ jobs:
             backend/go.sum
       - name: render packages
         run: go run ./cmd/fsint render --out "$RUNNER_TEMP/rendered"
+      - uses: sigstore/cosign-installer@v4.1.2
+      - name: previous release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/previous-release.sh "$RUNNER_TEMP/previous"
       - name: build catalog
-        run: go run ./cmd/fsint catalog --out "$RUNNER_TEMP/catalog" --ref "$GITHUB_REF" --commit "$GITHUB_SHA"
+        run: go run ./cmd/fsint catalog --out "$RUNNER_TEMP/catalog" --ref "$GITHUB_REF" --commit "$GITHUB_SHA" --previous "$RUNNER_TEMP/previous"
       - name: compare with the backend
         env:
           FUSESCOPE_INTEGRATION_PACKAGES: ${{ runner.temp }}/rendered
@@ -136,8 +141,13 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+      - uses: sigstore/cosign-installer@v4.1.2
+      - name: previous release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/previous-release.sh "$RUNNER_TEMP/previous"
       - name: build catalog
-        run: go run ./cmd/fsint catalog --out dist --ref "$GITHUB_REF" --commit "$GITHUB_SHA"
+        run: go run ./cmd/fsint catalog --out dist --ref "$GITHUB_REF" --commit "$GITHUB_SHA" --previous "$RUNNER_TEMP/previous"
       - uses: actions/upload-artifact@v7
         with:
           name: catalog
