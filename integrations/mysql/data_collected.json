@@ -1,0 +1,286 @@
+{
+  "logs": [
+    {
+      "name": "Timestamp",
+      "path": "timestamp",
+      "type": "timestamp"
+    },
+    {
+      "name": "Severity Text",
+      "path": "severity_text",
+      "type": "string"
+    },
+    {
+      "name": "Severity Number",
+      "path": "severity_number",
+      "type": "number"
+    },
+    {
+      "name": "Log Type",
+      "path": "attributes.log_type",
+      "type": "string"
+    },
+    {
+      "name": "Thread ID",
+      "path": "attributes.thread_id",
+      "type": "string"
+    },
+    {
+      "name": "Error Code",
+      "path": "attributes.error_code",
+      "type": "string"
+    },
+    {
+      "name": "Subsystem",
+      "path": "attributes.subsystem",
+      "type": "string"
+    },
+    {
+      "name": "User",
+      "path": "attributes.db_user",
+      "type": "string"
+    },
+    {
+      "name": "Client Host",
+      "path": "attributes.client_host",
+      "type": "string"
+    },
+    {
+      "name": "Client IP",
+      "path": "attributes.client_ip",
+      "type": "string"
+    },
+    {
+      "name": "Query Time",
+      "path": "attributes.query_time",
+      "type": "string"
+    },
+    {
+      "name": "Lock Time",
+      "path": "attributes.lock_time",
+      "type": "string"
+    },
+    {
+      "name": "Rows Sent",
+      "path": "attributes.rows_sent",
+      "type": "string"
+    },
+    {
+      "name": "Rows Examined",
+      "path": "attributes.rows_examined",
+      "type": "string"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "mysql_buffer_pool_data_pages",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of data pages in the InnoDB buffer pool."
+    },
+    {
+      "name": "mysql_buffer_pool_limit",
+      "type": "sum",
+      "unit": "Bytes",
+      "description": "The configured size of the InnoDB buffer pool."
+    },
+    {
+      "name": "mysql_buffer_pool_operations",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of operations on the InnoDB buffer pool."
+    },
+    {
+      "name": "mysql_buffer_pool_page_flushes",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of requests to flush pages from the InnoDB buffer pool."
+    },
+    {
+      "name": "mysql_buffer_pool_pages",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of pages in the InnoDB buffer pool."
+    },
+    {
+      "name": "mysql_buffer_pool_usage",
+      "type": "sum",
+      "unit": "Bytes",
+      "description": "The number of bytes in the InnoDB buffer pool."
+    },
+    {
+      "name": "mysql_client_network_io",
+      "type": "sum",
+      "unit": "Bytes",
+      "description": "The number of transmitted bytes between server and clients."
+    },
+    {
+      "name": "mysql_commands",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of times each type of command has been executed."
+    },
+    {
+      "name": "mysql_connection_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of connection attempts (successful or not) to the MySQL server."
+    },
+    {
+      "name": "mysql_connection_errors",
+      "type": "sum",
+      "unit": "number",
+      "description": "Errors that occur during the client connection process."
+    },
+    {
+      "name": "mysql_double_writes",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of writes to the InnoDB doublewrite buffer."
+    },
+    {
+      "name": "mysql_handlers",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of requests to various MySQL handlers."
+    },
+    {
+      "name": "mysql_index_io_wait_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "The total count of I/O wait events for an index."
+    },
+    {
+      "name": "mysql_index_io_wait_time",
+      "type": "sum",
+      "unit": "nanoseconds",
+      "description": "The total time of I/O wait events for an index."
+    },
+    {
+      "name": "mysql_joins",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of joins that perform table scans."
+    },
+    {
+      "name": "mysql_locks",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of MySQL locks."
+    },
+    {
+      "name": "mysql_log_operations",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of InnoDB log operations."
+    },
+    {
+      "name": "mysql_max_used_connections",
+      "type": "sum",
+      "unit": "number",
+      "description": "Maximum number of connections used simultaneously since the server started."
+    },
+    {
+      "name": "mysql_mysqlx_connections",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of mysqlx connections."
+    },
+    {
+      "name": "mysql_opened_resources",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of opened resources."
+    },
+    {
+      "name": "mysql_operations",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of InnoDB operations."
+    },
+    {
+      "name": "mysql_page_operations",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of InnoDB page operations."
+    },
+    {
+      "name": "mysql_prepared_statements",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of times each type of prepared statement command has been issued."
+    },
+    {
+      "name": "mysql_query_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of statements executed by the server."
+    },
+    {
+      "name": "mysql_query_slow_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of slow queries."
+    },
+    {
+      "name": "mysql_replica_sql_delay",
+      "type": "sum",
+      "unit": "seconds",
+      "description": "The number of seconds that the replica must lag the source."
+    },
+    {
+      "name": "mysql_replica_time_behind_source",
+      "type": "sum",
+      "unit": "seconds",
+      "description": "This field is an indication of how \u201clate\u201d the replica is."
+    },
+    {
+      "name": "mysql_row_locks",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of InnoDB row locks."
+    },
+    {
+      "name": "mysql_row_operations",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of InnoDB row operations."
+    },
+    {
+      "name": "mysql_sorts",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of MySQL sorts."
+    },
+    {
+      "name": "mysql_table_io_wait_count",
+      "type": "sum",
+      "unit": "number",
+      "description": "The total count of I/O wait events for a table."
+    },
+    {
+      "name": "mysql_table_io_wait_time",
+      "type": "sum",
+      "unit": "nanoseconds",
+      "description": "The total time of I/O wait events for a table."
+    },
+    {
+      "name": "mysql_threads",
+      "type": "sum",
+      "unit": "number",
+      "description": "The state of MySQL threads."
+    },
+    {
+      "name": "mysql_tmp_resources",
+      "type": "sum",
+      "unit": "number",
+      "description": "The number of created temporary resources."
+    },
+    {
+      "name": "mysql_uptime",
+      "type": "sum",
+      "unit": "seconds",
+      "description": "The number of seconds that the server has been up."
+    }
+  ]
+}

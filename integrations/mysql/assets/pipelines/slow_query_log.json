@@ -1,0 +1,93 @@
+{
+  "id": "mysql-slow-query-log",
+  "orderId": 2,
+  "name": "MySQL slow query log",
+  "alias": "mysql-slow-log",
+  "description": "Parses MySQL slow query log entries: timestamp, user, client, query time, lock time, rows sent and rows examined.",
+  "enabled": true,
+  "filter": {
+    "op": "AND",
+    "items": [
+      {
+        "key": {
+          "key": "source",
+          "dataType": "string",
+          "type": "tag",
+          "isColumn": false,
+          "isJSON": false
+        },
+        "op": "=",
+        "value": "mysql"
+      },
+      {
+        "key": {
+          "key": "log_type",
+          "dataType": "string",
+          "type": "tag",
+          "isColumn": false,
+          "isJSON": false
+        },
+        "op": "=",
+        "value": "slow"
+      }
+    ]
+  },
+  "config": [
+    {
+      "orderId": 1,
+      "enabled": true,
+      "type": "regex_parser",
+      "id": "parse-slow-entry",
+      "name": "Parse slow query entry",
+      "output": "parse-utc-timestamp",
+      "on_error": "send",
+      "parse_from": "body",
+      "parse_to": "attributes",
+      "regex": "^# Time: (?P<timestamp>\\S+)\\s*\\n# User@Host: (?P<db_user>[^\\[\\s]*)\\[[^\\]]*\\]\\s*@\\s*(?P<client_host>[^\\s\\[]*)\\s*\\[(?P<client_ip>[^\\]]*)\\](?:\\s+Id:\\s*(?P<thread_id>\\d+))?[^\\n]*\\n# Query_time: (?P<query_time>[0-9.]+)\\s+Lock_time: (?P<lock_time>[0-9.]+)\\s+Rows_sent: (?P<rows_sent>\\d+)\\s+Rows_examined: (?P<rows_examined>\\d+)[^\\n]*\\n(?P<statement>[\\s\\S]*)$"
+    },
+    {
+      "orderId": 2,
+      "enabled": true,
+      "type": "time_parser",
+      "id": "parse-utc-timestamp",
+      "name": "Parse UTC timestamp",
+      "output": "parse-offset-timestamp",
+      "on_error": "send",
+      "parse_from": "attributes.timestamp",
+      "layout_type": "strptime",
+      "layout": "%Y-%m-%dT%H:%M:%S.%fZ"
+    },
+    {
+      "orderId": 3,
+      "enabled": true,
+      "type": "time_parser",
+      "id": "parse-offset-timestamp",
+      "name": "Parse timestamp with UTC offset",
+      "output": "move-statement",
+      "on_error": "send",
+      "parse_from": "attributes.timestamp",
+      "layout_type": "strptime",
+      "layout": "%Y-%m-%dT%H:%M:%S.%f%j"
+    },
+    {
+      "orderId": 4,
+      "enabled": true,
+      "type": "move",
+      "id": "move-statement",
+      "name": "Move statement to body",
+      "output": "remove-timestamp",
+      "on_error": "send",
+      "from": "attributes.statement",
+      "to": "body"
+    },
+    {
+      "orderId": 5,
+      "enabled": true,
+      "type": "remove",
+      "id": "remove-timestamp",
+      "name": "Remove parsed timestamp",
+      "on_error": "send",
+      "field": "attributes.timestamp"
+    }
+  ]
+}

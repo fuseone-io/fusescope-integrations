@@ -1,0 +1,119 @@
+{
+  "id": "mysql-error-log",
+  "orderId": 1,
+  "name": "MySQL error log",
+  "alias": "mysql-error-log",
+  "description": "Parses the MySQL error log: timestamp, severity, thread id, error code and subsystem.",
+  "enabled": true,
+  "filter": {
+    "op": "AND",
+    "items": [
+      {
+        "key": {
+          "key": "source",
+          "dataType": "string",
+          "type": "tag",
+          "isColumn": false,
+          "isJSON": false
+        },
+        "op": "=",
+        "value": "mysql"
+      },
+      {
+        "key": {
+          "key": "log_type",
+          "dataType": "string",
+          "type": "tag",
+          "isColumn": false,
+          "isJSON": false
+        },
+        "op": "=",
+        "value": "error"
+      }
+    ]
+  },
+  "config": [
+    {
+      "orderId": 1,
+      "enabled": true,
+      "type": "regex_parser",
+      "id": "parse-error-line",
+      "name": "Parse error log line",
+      "output": "parse-utc-timestamp",
+      "on_error": "send",
+      "parse_from": "body",
+      "parse_to": "attributes",
+      "regex": "^(?P<timestamp>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+(?:Z|[+-]\\d{2}:\\d{2}))\\s+(?P<thread_id>\\d+)\\s+\\[(?P<level>[A-Za-z]+)\\](?:\\s+\\[(?P<error_code>MY-\\d+)\\])?(?:\\s+\\[(?P<subsystem>[A-Za-z]+)\\])?\\s+(?P<message>[\\s\\S]*)$"
+    },
+    {
+      "orderId": 2,
+      "enabled": true,
+      "type": "time_parser",
+      "id": "parse-utc-timestamp",
+      "name": "Parse UTC timestamp",
+      "output": "parse-offset-timestamp",
+      "on_error": "send",
+      "parse_from": "attributes.timestamp",
+      "layout_type": "strptime",
+      "layout": "%Y-%m-%dT%H:%M:%S.%fZ"
+    },
+    {
+      "orderId": 3,
+      "enabled": true,
+      "type": "time_parser",
+      "id": "parse-offset-timestamp",
+      "name": "Parse timestamp with UTC offset",
+      "output": "parse-severity",
+      "on_error": "send",
+      "parse_from": "attributes.timestamp",
+      "layout_type": "strptime",
+      "layout": "%Y-%m-%dT%H:%M:%S.%f%j"
+    },
+    {
+      "orderId": 4,
+      "enabled": true,
+      "type": "severity_parser",
+      "id": "parse-severity",
+      "name": "Parse severity",
+      "output": "move-message",
+      "on_error": "send",
+      "parse_from": "attributes.level",
+      "mapping": {
+        "info": ["System", "SYSTEM", "Note", "NOTE"],
+        "warn": ["Warning", "WARNING"],
+        "error": ["Error", "ERROR"]
+      },
+      "overwrite_text": true
+    },
+    {
+      "orderId": 5,
+      "enabled": true,
+      "type": "move",
+      "id": "move-message",
+      "name": "Move message to body",
+      "output": "remove-timestamp",
+      "on_error": "send",
+      "from": "attributes.message",
+      "to": "body"
+    },
+    {
+      "orderId": 6,
+      "enabled": true,
+      "type": "remove",
+      "id": "remove-timestamp",
+      "name": "Remove parsed timestamp",
+      "output": "remove-level",
+      "on_error": "send",
+      "field": "attributes.timestamp"
+    },
+    {
+      "orderId": 7,
+      "enabled": true,
+      "type": "remove",
+      "id": "remove-level",
+      "name": "Remove parsed level",
+      "on_error": "send",
+      "field": "attributes.level"
+    }
+  ]
+}
