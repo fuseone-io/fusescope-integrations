@@ -76,7 +76,7 @@ export POSTGRESQL_PASSWORD="<PASSWORD>"
 export POSTGRESQL_ENDPOINT="host:port"
 
 
-# OTLP gRPC endpoint of your FuseScope collector, see https://fuseone-io.github.io/fusescope-docs/sending-data/otlp/
+# OTLP gRPC endpoint of your FuseScope collector, see https://docs.fusescope.fuseone.io/sending-data/otlp/
 export OTLP_DESTINATION_ENDPOINT="<fusescope-otel-collector-host>:4317"
 
 ```

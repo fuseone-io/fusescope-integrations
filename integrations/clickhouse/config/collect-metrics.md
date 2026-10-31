@@ -57,7 +57,7 @@ export CLICKHOUSE_PROM_METRICS_ENDPOINT="clickhouse:9363"
 # You can examine clickhouse server configuration to find it. For details see https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#prometheus
 export CLICKHOUSE_PROM_METRICS_PATH="/metrics"
 
-# OTLP gRPC endpoint of your FuseScope collector, see https://fuseone-io.github.io/fusescope-docs/sending-data/otlp/
+# OTLP gRPC endpoint of your FuseScope collector, see https://docs.fusescope.fuseone.io/sending-data/otlp/
 export OTLP_DESTINATION_ENDPOINT="<fusescope-otel-collector-host>:4317"
 
 ```
