@@ -203,7 +203,7 @@ export REDIS_ENDPOINT="<redis-server-endpoint>"
 # The password to use for accessing redis instance
 export REDIS_PASSWORD="<PASSWORD>"
 
-# OTLP gRPC endpoint of your FuseScope collector, see https://fuseone-io.github.io/fusescope-docs/sending-data/otlp/
+# OTLP gRPC endpoint of your FuseScope collector, see https://docs.fusescope.fuseone.io/sending-data/otlp/
 export OTLP_DESTINATION_ENDPOINT="<fusescope-otel-collector-host>:4317"
 
 ```

@@ -55,7 +55,7 @@ Set the following environment variables in your otel-collector environment:
 
 ```bash
 
-# OTLP gRPC endpoint of your FuseScope collector, see https://fuseone-io.github.io/fusescope-docs/sending-data/otlp/
+# OTLP gRPC endpoint of your FuseScope collector, see https://docs.fusescope.fuseone.io/sending-data/otlp/
 export OTLP_DESTINATION_ENDPOINT="<fusescope-otel-collector-host>:4317"
 
 ```
@@ -70,4 +70,4 @@ Note: the collector can use multiple config files, specified by multiple occurre
 
 #### Parse the logs
 
-Use the log pipelines feature to parse and structure the logs https://fuseone-io.github.io/fusescope-docs/sending-data/log-pipelines/
+Use the log pipelines feature to parse and structure the logs https://docs.fusescope.fuseone.io/sending-data/log-pipelines/

@@ -67,7 +67,7 @@ export MYSQL_ERROR_LOG_FILE=/var/log/mysql/error.log
 # MySQL slow query log, the value of the slow_query_log_file variable
 export MYSQL_SLOW_QUERY_LOG_FILE=/var/log/mysql/mysql-slow.log
 
-# OTLP gRPC endpoint of your FuseScope collector, see https://fuseone-io.github.io/fusescope-docs/sending-data/otlp/
+# OTLP gRPC endpoint of your FuseScope collector, see https://docs.fusescope.fuseone.io/sending-data/otlp/
 export OTLP_DESTINATION_ENDPOINT="<fusescope-otel-collector-host>:4317"
 
 ```

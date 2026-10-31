@@ -87,7 +87,7 @@ Set the following environment variables in your otel-collector environment:
 # running `SELECT pg_current_logfile();` can also give you the location of postgresql log file
 export POSTGRESQL_LOG_FILE=/var/log/postgresql/postgresql.log
 
-# OTLP gRPC endpoint of your FuseScope collector, see https://fuseone-io.github.io/fusescope-docs/sending-data/otlp/
+# OTLP gRPC endpoint of your FuseScope collector, see https://docs.fusescope.fuseone.io/sending-data/otlp/
 export OTLP_DESTINATION_ENDPOINT="<fusescope-otel-collector-host>:4317"
 
 ```

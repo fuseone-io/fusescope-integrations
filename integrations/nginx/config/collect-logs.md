@@ -123,7 +123,7 @@ export NGINX_ACCESS_LOG_FILE=/var/log/nginx/access.log
 # typically found at /usr/local/var/log/nginx/error.log on macOS
 export NGINX_ERROR_LOG_FILE=/var/log/nginx/error.log
 
-# OTLP gRPC endpoint of your FuseScope collector, see https://fuseone-io.github.io/fusescope-docs/sending-data/otlp/
+# OTLP gRPC endpoint of your FuseScope collector, see https://docs.fusescope.fuseone.io/sending-data/otlp/
 export OTLP_DESTINATION_ENDPOINT="<fusescope-otel-collector-host>:4317"
 
 ```
