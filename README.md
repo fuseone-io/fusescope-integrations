@@ -1,4 +1,20 @@
-# FuseScope integrations
+<p align="center">
+  <img alt="FuseScope" src=".github/brand/fusescope-logo-universal.svg" width="440">
+</p>
+
+<h1 align="center">FuseScope Integrations</h1>
+
+<p align="center">
+  <b>Integration packages for FuseScope: collector configs, dashboards, log pipelines and alert rules, released as a signed catalog.</b>
+</p>
+
+<p align="center">
+  <a href="https://docs.fusescope.fuseone.io/sending-data/integrations/">Docs</a> ·
+  <a href="docs/README.md">Catalog</a> ·
+  <a href="https://github.com/fuseone-io/fusescope-integrations/releases">Releases</a> ·
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-0f5fb8"></a>
+  <a href="https://golang.org"><img alt="Go 1.25+" src="https://img.shields.io/badge/Go-1.25+-0f5fb8"></a>
+</p>
 
 Integration packages for [FuseScope](https://github.com/fuseone-io/fusescope), the
 OpenTelemetry-native observability platform. Each package tells a user how to
