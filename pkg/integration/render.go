@@ -105,8 +105,15 @@ func Render(p *Package) (*Details, error) {
 	if d.Assets.Logs.Pipelines, err = readObjects(p.FS, m.Assets.Logs.Pipelines); err != nil {
 		return nil, err
 	}
-	if d.Assets.Alerts, err = readObjects(p.FS, m.Assets.Alerts); err != nil {
-		return nil, err
+	if m.Assets.Alerts != nil {
+		// The API serves each alert as its bare rule, in both manifest versions.
+		definitions := make([]string, 0, len(m.Assets.Alerts))
+		for _, a := range m.Assets.Alerts {
+			definitions = append(definitions, a.Definition)
+		}
+		if d.Assets.Alerts, err = readObjects(p.FS, definitions); err != nil {
+			return nil, err
+		}
 	}
 	if m.Assets.Dashboards != nil {
 		d.Assets.Dashboards = make([]Dashboard, 0, len(m.Assets.Dashboards))
