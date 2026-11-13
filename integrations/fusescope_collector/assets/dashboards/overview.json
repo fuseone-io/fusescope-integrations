@@ -1,0 +1,968 @@
+{
+  "schemaVersion": "v6",
+  "image": "",
+  "name": "",
+  "generateName": true,
+  "tags": [],
+  "spec": {
+    "display": {
+      "name": "FuseScope Collector Overview",
+      "description": "The FuseScope Collector's own telemetry: receivers, exporters, queues, ClickHouse inserts, memory and RUM refusals."
+    },
+    "panels": {
+      "e51ad74c-cbf5-5f18-839c-8706999e4813": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Accepted by receiver",
+            "description": "Items each receiver accepted, per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "sum by (receiver) (rate(otelcol_receiver_accepted_spans{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} spans",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "B",
+                          "query": "sum by (receiver) (rate(otelcol_receiver_accepted_log_records{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} log_records",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "C",
+                          "query": "sum by (receiver) (rate(otelcol_receiver_accepted_metric_points{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} metric_points",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "cc7c5637-0dd7-526f-9875-fa90e4b19ca8": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Refused by receiver",
+            "description": "Items refused, by the memory limiter among others; alerted by receiver-refused."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "sum by (\"host.name\", receiver) (rate(otelcol_receiver_refused_spans{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} spans",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "B",
+                          "query": "sum by (\"host.name\", receiver) (rate(otelcol_receiver_refused_log_records{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} log_records",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "C",
+                          "query": "sum by (\"host.name\", receiver) (rate(otelcol_receiver_refused_metric_points{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} metric_points",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "7badb28f-f0ae-5332-b6d7-635762b295f8": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Failed by receiver",
+            "description": "Items a receiver failed to take in; alerted by receiver-failed."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "sum by (\"host.name\", receiver) (rate(otelcol_receiver_failed_spans{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} spans",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "B",
+                          "query": "sum by (\"host.name\", receiver) (rate(otelcol_receiver_failed_log_records{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} log_records",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "C",
+                          "query": "sum by (\"host.name\", receiver) (rate(otelcol_receiver_failed_metric_points{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{receiver} metric_points",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dbf4f057-11af-583c-a5d4-1cb55a32a71c": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Sent by exporter",
+            "description": "Items each exporter sent, per second."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_sent_spans{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{exporter} spans",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "B",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_sent_log_records{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{exporter} log_records",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "C",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_sent_metric_points{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{exporter} metric_points",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "813fa73d-8496-5523-aa4c-b610188f5645": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Export failures by exporter",
+            "description": "Items an exporter failed to send or enqueue, so dropped; alerted by export-dropped."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_send_failed_spans{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{exporter}} send_failed_spans",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "B",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_send_failed_log_records{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{exporter}} send_failed_log_records",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "C",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_send_failed_metric_points{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{exporter}} send_failed_metric_points",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "D",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_enqueue_failed_spans{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{exporter}} enqueue_failed_spans",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "E",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_enqueue_failed_log_records{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{exporter}} enqueue_failed_log_records",
+                          "disabled": false
+                        }
+                      },
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "F",
+                          "query": "sum by (exporter) (rate(otelcol_exporter_enqueue_failed_metric_points{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{exporter}} enqueue_failed_metric_points",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "ebfa8cdb-0fc5-539b-926e-40785dccb9c9": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Export queue usage",
+            "description": "Share of each exporter queue in use; alerted by queue-backing-up above 50%."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "percentunit",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "max by (\"host.name\", exporter, data_type) (otelcol_exporter_queue_size{\"service.name\"=\"fusescope-collector\"}) / max by (\"host.name\", exporter, data_type) (otelcol_exporter_queue_capacity{\"service.name\"=\"fusescope-collector\"} > 0)",
+                          "legend": "{{exporter}} {{data_type}}",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "9cfda601-85dd-575d-a2a6-7a58f1085bb6": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "ClickHouse insert errors by table",
+            "description": "Failed INSERT attempts, retryable or permanent; alerted by clickhouse-insert-errors. distributed_samples is the meter's table."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "sum by (table, outcome) (rate(otelcol_exporter_fusescope_clickhouse_insert_errors{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{table}} {{outcome}}",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "447e54eb-9a1a-550b-94a3-822b376bb7a1": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "ClickHouse insert duration p95 by table",
+            "description": "95th percentile of each INSERT attempt's duration, retries included."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "s",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "histogram_quantile(0.95, sum by (le, table) (rate({\"otelcol_exporter_fusescope_clickhouse_insert_duration.bucket\", \"service.name\"=\"fusescope-collector\"}[5m])))",
+                          "legend": "{{table}}",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "095b64e0-8baa-5d7e-bf6c-5b4ea3aeda69": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Resident memory by replica",
+            "description": "No default alert: the memory limiter's limit is a share of the container limit, which is not reported; its refusals show above."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "bytes",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "max by (\"host.name\") (otelcol_process_memory_rss{\"service.name\"=\"fusescope-collector\"})",
+                          "legend": "{{host.name}}",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "b47efb8d-6c2b-5278-bdb0-bd542cacf9f5": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "RUM requests refused by reason",
+            "description": "no_policy, busy and consumer_retryable are alerted; the other reasons depend on clients and limits, with no portable baseline."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "sum by (reason) (rate(otelcol_receiver_rum_requests_refused{\"service.name\"=\"fusescope-collector\"}[5m]))",
+                          "legend": "{{reason}}",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "c91216d2-8b37-5532-b59a-d60dbc052fd8": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Replicas reporting",
+            "description": "Collector replicas whose telemetry arrives; the no-telemetry alert fires when none does."
+          },
+          "plugin": {
+            "kind": "signoz/TimeSeriesPanel",
+            "spec": {
+              "visualization": {
+                "timePreference": "global_time",
+                "fillSpans": false
+              },
+              "formatting": {
+                "unit": "short",
+                "decimalPrecision": "2"
+              },
+              "chartAppearance": {
+                "lineInterpolation": "spline",
+                "showPoints": false,
+                "lineStyle": "solid",
+                "fillMode": "none",
+                "spanGaps": {
+                  "fillOnlyBelow": false,
+                  "fillLessThan": ""
+                }
+              },
+              "axes": {
+                "softMin": 0,
+                "softMax": 0,
+                "isLogScale": false
+              },
+              "legend": {
+                "position": "bottom",
+                "mode": "list",
+                "customColors": null
+              },
+              "thresholds": null
+            }
+          },
+          "queries": [
+            {
+              "kind": "time_series",
+              "spec": {
+                "plugin": {
+                  "kind": "signoz/CompositeQuery",
+                  "spec": {
+                    "queries": [
+                      {
+                        "type": "promql",
+                        "spec": {
+                          "name": "A",
+                          "query": "count(max by (\"host.name\") (otelcol_process_uptime{\"service.name\"=\"fusescope-collector\"}))",
+                          "legend": "replicas",
+                          "disabled": false
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/e51ad74c-cbf5-5f18-839c-8706999e4813"
+              }
+            },
+            {
+              "x": 6,
+              "y": 0,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/cc7c5637-0dd7-526f-9875-fa90e4b19ca8"
+              }
+            },
+            {
+              "x": 0,
+              "y": 3,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/7badb28f-f0ae-5332-b6d7-635762b295f8"
+              }
+            },
+            {
+              "x": 6,
+              "y": 3,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/dbf4f057-11af-583c-a5d4-1cb55a32a71c"
+              }
+            },
+            {
+              "x": 0,
+              "y": 6,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/813fa73d-8496-5523-aa4c-b610188f5645"
+              }
+            },
+            {
+              "x": 6,
+              "y": 6,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/ebfa8cdb-0fc5-539b-926e-40785dccb9c9"
+              }
+            },
+            {
+              "x": 0,
+              "y": 9,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/9cfda601-85dd-575d-a2a6-7a58f1085bb6"
+              }
+            },
+            {
+              "x": 6,
+              "y": 9,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/447e54eb-9a1a-550b-94a3-822b376bb7a1"
+              }
+            },
+            {
+              "x": 0,
+              "y": 12,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/095b64e0-8baa-5d7e-bf6c-5b4ea3aeda69"
+              }
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/b47efb8d-6c2b-5278-bdb0-bd542cacf9f5"
+              }
+            },
+            {
+              "x": 0,
+              "y": 15,
+              "width": 6,
+              "height": 3,
+              "content": {
+                "$ref": "#/spec/panels/c91216d2-8b37-5532-b59a-d60dbc052fd8"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "variables": [],
+    "links": []
+  }
+}

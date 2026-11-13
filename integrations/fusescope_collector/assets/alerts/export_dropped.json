@@ -1,0 +1,60 @@
+{
+  "alert": "FuseScope Collector dropping data on export",
+  "version": "v5",
+  "schemaVersion": "v2alpha1",
+  "ruleType": "promql_rule",
+  "alertType": "METRIC_BASED_ALERT",
+  "labels": {
+    "severity": "critical",
+    "integration": "fusescope-collector"
+  },
+  "annotations": {
+    "description": "Dropped on export: send_failed or enqueue_failed appears for fusescope_clickhouse (and, by decision, fusescope_clickhouse/meter) (CUTOVER.md §4).",
+    "summary": "Exporter {{index $labels \"exporter\"}} on {{index $labels \"host.name\"}} dropped data"
+  },
+  "condition": {
+    "compositeQuery": {
+      "queryType": "promql",
+      "panelType": "graph",
+      "queries": [
+        {
+          "type": "promql",
+          "spec": {
+            "name": "A",
+            "query": "(\n  max by (\"host.name\", exporter) (increase(otelcol_exporter_send_failed_spans{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"}[10m]) > 0 or (otelcol_exporter_send_failed_spans{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} > 0 unless otelcol_exporter_send_failed_spans{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} offset 10m))\n  or max by (\"host.name\", exporter) (increase(otelcol_exporter_send_failed_log_records{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"}[10m]) > 0 or (otelcol_exporter_send_failed_log_records{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} > 0 unless otelcol_exporter_send_failed_log_records{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} offset 10m))\n  or max by (\"host.name\", exporter) (increase(otelcol_exporter_send_failed_metric_points{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"}[10m]) > 0 or (otelcol_exporter_send_failed_metric_points{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} > 0 unless otelcol_exporter_send_failed_metric_points{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} offset 10m))\n  or max by (\"host.name\", exporter) (increase(otelcol_exporter_enqueue_failed_spans{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"}[10m]) > 0 or (otelcol_exporter_enqueue_failed_spans{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} > 0 unless otelcol_exporter_enqueue_failed_spans{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} offset 10m))\n  or max by (\"host.name\", exporter) (increase(otelcol_exporter_enqueue_failed_log_records{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"}[10m]) > 0 or (otelcol_exporter_enqueue_failed_log_records{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} > 0 unless otelcol_exporter_enqueue_failed_log_records{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} offset 10m))\n  or max by (\"host.name\", exporter) (increase(otelcol_exporter_enqueue_failed_metric_points{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"}[10m]) > 0 or (otelcol_exporter_enqueue_failed_metric_points{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} > 0 unless otelcol_exporter_enqueue_failed_metric_points{\"service.name\"=\"fusescope-collector\", exporter=~\"fusescope_clickhouse|fusescope_clickhouse/meter\"} offset 10m))\n)",
+            "disabled": false
+          }
+        }
+      ]
+    },
+    "selectedQueryName": "A",
+    "thresholds": {
+      "kind": "basic",
+      "spec": [
+        {
+          "name": "critical",
+          "target": 0,
+          "matchType": "1",
+          "op": "1"
+        }
+      ]
+    }
+  },
+  "evaluation": {
+    "kind": "rolling",
+    "spec": {
+      "evalWindow": "5m",
+      "frequency": "5m"
+    }
+  },
+  "notificationSettings": {
+    "usePolicy": true,
+    "renotify": {
+      "enabled": true,
+      "interval": "4h",
+      "alertStates": [
+        "firing"
+      ]
+    }
+  }
+}

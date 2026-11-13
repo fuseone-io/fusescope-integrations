@@ -2,6 +2,7 @@ package integration
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -69,6 +70,18 @@ func validFS() fstest.MapFS {
 	}
 }
 
+// withAlerts sets the manifest's version and its alerts to the given YAML
+// list items; none leaves an empty list.
+func withAlerts(manifest string, version int, items string) string {
+	manifest = strings.Replace(manifest, "manifest_version: 1", fmt.Sprintf("manifest_version: %d", version), 1)
+	if items == "" {
+		return manifest
+	}
+	return strings.Replace(manifest, "  alerts: []\n", "  alerts:\n"+items, 1)
+}
+
+const validAlert = `{"alert": "Demo down", "version": "v5"}`
+
 func mustLoad(t *testing.T, fsys fstest.MapFS) *Package {
 	t.Helper()
 	p, err := Load(fsys, "demo")
@@ -87,7 +100,17 @@ func TestLoadSchema(t *testing.T) {
 		{name: "Valid", edit: func(s string) string { return s }},
 		{name: "UnknownField", edit: func(s string) string { return s + "extra: 1\n" }, wantErr: "schema"},
 		{name: "MissingVersion", edit: func(s string) string { return strings.Replace(s, "version: 1.0.0\n", "", 1) }, wantErr: "schema"},
-		{name: "FutureManifestVersion", edit: func(s string) string { return strings.Replace(s, "manifest_version: 1", "manifest_version: 2", 1) }, wantErr: "schema"},
+		{name: "FutureManifestVersion", edit: func(s string) string { return strings.Replace(s, "manifest_version: 1", "manifest_version: 3", 1) }, wantErr: "schema"},
+		{name: "V1AlertFile", edit: func(s string) string { return withAlerts(s, 1, "    - assets/alerts/a.json\n") }},
+		{name: "V1AlertWithID", edit: func(s string) string { return withAlerts(s, 1, "    - {id: a, definition: assets/alerts/a.json}\n") }, wantErr: "schema"},
+		{name: "V2AlertWithID", edit: func(s string) string { return withAlerts(s, 2, "    - {id: a, definition: assets/alerts/a.json}\n") }},
+		{name: "V2NoAlerts", edit: func(s string) string { return withAlerts(s, 2, "") }},
+		{name: "V2AlertFile", edit: func(s string) string { return withAlerts(s, 2, "    - assets/alerts/a.json\n") }, wantErr: "schema"},
+		{name: "V2AlertWithoutID", edit: func(s string) string { return withAlerts(s, 2, "    - {definition: assets/alerts/a.json}\n") }, wantErr: "schema"},
+		{name: "V2AlertUnknownField", edit: func(s string) string {
+			return withAlerts(s, 2, "    - {id: a, definition: assets/alerts/a.json, extra: 1}\n")
+		}, wantErr: "schema"},
+		{name: "V2AlertBadID", edit: func(s string) string { return withAlerts(s, 2, "    - {id: A b, definition: assets/alerts/a.json}\n") }, wantErr: "schema"},
 		{name: "IdWithoutNamespace", edit: func(s string) string { return strings.Replace(s, "id: builtin-demo", "id: demo", 1) }, wantErr: "schema"},
 		{name: "VersionWithV", edit: func(s string) string { return strings.Replace(s, "version: 1.0.0", "version: v1.0.0", 1) }, wantErr: "schema"},
 		{name: "PathTraversal", edit: func(s string) string {
@@ -155,6 +178,23 @@ func TestValidate(t *testing.T) {
 		{name: "UndefinedProcessor", edit: func(f fstest.MapFS) {
 			f["config/collect-metrics.md"] = &fstest.MapFile{Data: []byte(strings.Replace(validSnippet, "processors: [batch]", "processors: [batch, memory_limiter]", 1))}
 		}, want: "undefined processor memory_limiter"},
+		{name: "V2Alerts", edit: func(f fstest.MapFS) {
+			f["manifest.yaml"] = &fstest.MapFile{Data: []byte(withAlerts(validManifest, 2, "    - {id: a, definition: assets/alerts/a.json}\n    - {id: b, definition: assets/alerts/b.json}\n"))}
+			f["assets/alerts/a.json"] = &fstest.MapFile{Data: []byte(validAlert)}
+			f["assets/alerts/b.json"] = &fstest.MapFile{Data: []byte(validAlert)}
+		}},
+		{name: "V2AlertIDTwice", edit: func(f fstest.MapFS) {
+			f["manifest.yaml"] = &fstest.MapFile{Data: []byte(withAlerts(validManifest, 2, "    - {id: a, definition: assets/alerts/a.json}\n    - {id: a, definition: assets/alerts/b.json}\n"))}
+			f["assets/alerts/a.json"] = &fstest.MapFile{Data: []byte(validAlert)}
+			f["assets/alerts/b.json"] = &fstest.MapFile{Data: []byte(validAlert)}
+		}, want: "alert id a is listed twice"},
+		{name: "V2AlertFileMissing", edit: func(f fstest.MapFS) {
+			f["manifest.yaml"] = &fstest.MapFile{Data: []byte(withAlerts(validManifest, 2, "    - {id: a, definition: assets/alerts/a.json}\n"))}
+		}, want: "references assets/alerts/a.json, which does not exist"},
+		{name: "V2AlertNotAnObject", edit: func(f fstest.MapFS) {
+			f["manifest.yaml"] = &fstest.MapFile{Data: []byte(withAlerts(validManifest, 2, "    - {id: a, definition: assets/alerts/a.json}\n"))}
+			f["assets/alerts/a.json"] = &fstest.MapFile{Data: []byte(`[]`)}
+		}, want: "cannot render"},
 		{name: "SVGScript", edit: func(f fstest.MapFS) {
 			f["icon.svg"] = &fstest.MapFile{Data: []byte(`<svg><script>alert(1)</script></svg>`)}
 		}, want: "must not contain scripts"},
@@ -205,6 +245,36 @@ func TestRender(t *testing.T) {
 	}
 	if got := d.ConnectionTests.Metrics; len(got) != 1 || got[0] != "demo_requests" {
 		t.Fatalf("connection test metrics %v", got)
+	}
+}
+
+// Alerts render as the API serves them, the bare rule, whichever form the
+// manifest lists them in.
+func TestRenderAlerts(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		version int
+		items   string
+	}{
+		{name: "V1", version: 1, items: "    - assets/alerts/a.json\n"},
+		{name: "V2", version: 2, items: "    - {id: a, definition: assets/alerts/a.json}\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			fsys := validFS()
+			fsys["manifest.yaml"] = &fstest.MapFile{Data: []byte(withAlerts(validManifest, tc.version, tc.items))}
+			fsys["assets/alerts/a.json"] = &fstest.MapFile{Data: []byte(validAlert)}
+			d, err := Render(mustLoad(t, fsys))
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := json.Marshal(d.Assets.Alerts)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(got) != `[{"alert":"Demo down","version":"v5"}]` {
+				t.Fatalf("alerts render as %s", got)
+			}
+		})
 	}
 }
 

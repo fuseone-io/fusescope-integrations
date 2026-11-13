@@ -95,7 +95,7 @@ connection_tests:
 
 | Field | Meaning |
 |---|---|
-| `manifest_version` | Format of the manifest, `1`. The backend reads the current and the previous format. |
+| `manifest_version` | Format of the manifest, `1` or `2`; `2` lists alerts with a stable id. A backend skips a package whose format it does not read, by the index, before decoding it; it reads the current and the previous format. |
 | `id` | `<namespace>-<name>`. The id the API serves and each installation stores; it never changes. This catalog uses the `builtin` namespace. |
 | `version` | Package version (semver). Bump it on every change: a released version is immutable and stays in the catalog. |
 | `fusescope` | FuseScope versions the package works with, a semver constraint. |
@@ -106,11 +106,24 @@ connection_tests:
 | `configuration` | Ordered steps: a title and a markdown file under `config/`. |
 | `assets.logs.pipelines` | Log pipeline files. |
 | `assets.dashboards` | Dashboards installed with the integration. `id` is stable: it names the installed dashboard. |
-| `assets.alerts` | Alert rule files. |
+| `assets.alerts` | Alert rules, one JSON object per file in the format of the rules API. With `manifest_version: 1`, the files: listed by the backend, not provisioned. With `manifest_version: 2`, `{id, definition}`: provisioned on install, and the installation owns each rule by its `id`, which never changes once released. |
 | `data_collected` | `data_collected.json`. |
 | `connection_tests.logs` | The log attribute that marks this integration's logs. Metrics are detected by the names in `data_collected.json`. |
 
 For `dashboards`, `pipelines` and `alerts`, an omitted list and `[]` are served differently (`null` and `[]`); keep what the package had.
+
+A `manifest_version: 2` package lists its alerts as:
+
+```yaml
+manifest_version: 2
+# ...
+assets:
+  alerts:
+    - id: receiver-refused
+      definition: assets/alerts/receiver_refused.json
+```
+
+The API serves each alert as its bare rule in both versions. Keep a package on `1` until it ships alerts to provision; `2` needs a backend that reads it, so raise `fusescope` with it.
 
 ## Adding an integration
 

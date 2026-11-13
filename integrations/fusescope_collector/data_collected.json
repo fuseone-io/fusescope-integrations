@@ -1,0 +1,155 @@
+{
+  "logs": [],
+  "metrics": [
+    {
+      "name": "otelcol_process_uptime",
+      "type": "Sum",
+      "unit": "s",
+      "description": "Seconds since the collector started; its absence means no telemetry."
+    },
+    {
+      "name": "otelcol_process_memory_rss",
+      "type": "Gauge",
+      "unit": "bytes",
+      "description": "Resident memory of the collector process."
+    },
+    {
+      "name": "otelcol_receiver_accepted_spans",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Spans a receiver accepted."
+    },
+    {
+      "name": "otelcol_receiver_accepted_log_records",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Log records a receiver accepted."
+    },
+    {
+      "name": "otelcol_receiver_accepted_metric_points",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Metric points a receiver accepted."
+    },
+    {
+      "name": "otelcol_receiver_refused_spans",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Spans a receiver refused."
+    },
+    {
+      "name": "otelcol_receiver_refused_log_records",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Log records a receiver refused."
+    },
+    {
+      "name": "otelcol_receiver_refused_metric_points",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Metric points a receiver refused."
+    },
+    {
+      "name": "otelcol_receiver_failed_spans",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Spans a receiver failed to take in."
+    },
+    {
+      "name": "otelcol_receiver_failed_log_records",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Log records a receiver failed to take in."
+    },
+    {
+      "name": "otelcol_receiver_failed_metric_points",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Metric points a receiver failed to take in."
+    },
+    {
+      "name": "otelcol_exporter_sent_spans",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Spans an exporter sent."
+    },
+    {
+      "name": "otelcol_exporter_sent_log_records",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Log records an exporter sent."
+    },
+    {
+      "name": "otelcol_exporter_sent_metric_points",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Metric points an exporter sent."
+    },
+    {
+      "name": "otelcol_exporter_send_failed_spans",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Spans an exporter failed to send, so dropped."
+    },
+    {
+      "name": "otelcol_exporter_send_failed_log_records",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Log records an exporter failed to send, so dropped."
+    },
+    {
+      "name": "otelcol_exporter_send_failed_metric_points",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Metric points an exporter failed to send, so dropped."
+    },
+    {
+      "name": "otelcol_exporter_enqueue_failed_spans",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Spans that did not fit an exporter's queue, so dropped."
+    },
+    {
+      "name": "otelcol_exporter_enqueue_failed_log_records",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Log records that did not fit an exporter's queue, so dropped."
+    },
+    {
+      "name": "otelcol_exporter_enqueue_failed_metric_points",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Metric points that did not fit an exporter's queue, so dropped."
+    },
+    {
+      "name": "otelcol_exporter_queue_size",
+      "type": "Gauge",
+      "unit": "number",
+      "description": "Items in an exporter's queue."
+    },
+    {
+      "name": "otelcol_exporter_queue_capacity",
+      "type": "Gauge",
+      "unit": "number",
+      "description": "Capacity of an exporter's queue."
+    },
+    {
+      "name": "otelcol_exporter_fusescope_clickhouse_insert_errors",
+      "type": "Sum",
+      "unit": "number",
+      "description": "Failed INSERT attempts into ClickHouse, by table and outcome."
+    },
+    {
+      "name": "otelcol_exporter_fusescope_clickhouse_insert_duration",
+      "type": "Histogram",
+      "unit": "s",
+      "description": "Duration of each INSERT attempt into ClickHouse, by table and outcome."
+    },
+    {
+      "name": "otelcol_receiver_rum_requests_refused",
+      "type": "Sum",
+      "unit": "number",
+      "description": "RUM requests refused, by reason."
+    }
+  ]
+}

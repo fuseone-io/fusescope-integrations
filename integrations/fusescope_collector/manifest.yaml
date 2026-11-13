@@ -1,0 +1,46 @@
+manifest_version: 2
+id: builtin-fusescope_collector
+version: 1.0.0
+fusescope: ">=0.164.0"
+title: "FuseScope Collector"
+description: "Monitor the FuseScope Collector itself: refused and dropped data, export queues, ClickHouse inserts and RUM refusals"
+author:
+  name: "FuseScope"
+  email: ""
+  homepage: "https://github.com/fuseone-io/fusescope"
+icon: icon.svg
+categories:
+  - "Observability"
+signals:
+  - metrics
+overview: overview.md
+configuration:
+  - title: "Prerequisites"
+    instructions: config/prerequisites.md
+  - title: "Alerts"
+    instructions: config/alerts.md
+assets:
+  logs:
+    pipelines: []
+  dashboards:
+    - id: overview
+      definition: assets/dashboards/overview.json
+  alerts:
+    - id: receiver-refused
+      definition: assets/alerts/receiver_refused.json
+    - id: receiver-failed
+      definition: assets/alerts/receiver_failed.json
+    - id: export-dropped
+      definition: assets/alerts/export_dropped.json
+    - id: clickhouse-insert-errors
+      definition: assets/alerts/clickhouse_insert_errors.json
+    - id: queue-backing-up
+      definition: assets/alerts/queue_backing_up.json
+    - id: rum-policy-unavailable
+      definition: assets/alerts/rum_policy_unavailable.json
+    - id: rum-backpressure
+      definition: assets/alerts/rum_backpressure.json
+    - id: no-telemetry
+      definition: assets/alerts/no_telemetry.json
+data_collected: data_collected.json
+connection_tests: {}

@@ -16,10 +16,17 @@ import (
 	"go.yaml.in/yaml/v3"
 )
 
+// The manifest formats this module reads; a backend skips a package whose
+// format it does not read, by the catalog index, before decoding it.
+//   - 1: alerts are definition files, listed by the backend and not provisioned;
+//   - 2: alerts are {id, definition}, provisioned on install and owned by the id.
 const (
-	// ManifestVersion is the manifest format this module writes and reads.
-	ManifestVersion = 1
-	ManifestFile    = "manifest.yaml"
+	ManifestVersion1 = 1
+	ManifestVersion2 = 2
+)
+
+const (
+	ManifestFile = "manifest.yaml"
 	// BuiltinNamespace prefixes the ids of the packages in the official catalog.
 	BuiltinNamespace = "builtin"
 )
@@ -56,7 +63,23 @@ type ConfigStepRef struct {
 type AssetRefs struct {
 	Logs       LogAssetRefs   `yaml:"logs" json:"logs"`
 	Dashboards []DashboardRef `yaml:"dashboards" json:"dashboards"`
-	Alerts     []string       `yaml:"alerts" json:"alerts"`
+	Alerts     []AlertRef     `yaml:"alerts" json:"alerts"`
+}
+
+// AlertRef is an alert rule a manifest lists: in version 1 its definition
+// file, in version 2 {id, definition}. The schema holds each version to its
+// form.
+type AlertRef struct {
+	ID         string `yaml:"id" json:"id,omitempty"`
+	Definition string `yaml:"definition" json:"definition"`
+}
+
+func (ref *AlertRef) UnmarshalYAML(node *yaml.Node) error {
+	if node.Kind == yaml.ScalarNode {
+		return node.Decode(&ref.Definition)
+	}
+	type fields AlertRef
+	return node.Decode((*fields)(ref))
 }
 
 type LogAssetRefs struct {
@@ -96,7 +119,9 @@ func (p *Package) Files() []string {
 	for _, d := range m.Assets.Dashboards {
 		files = append(files, d.Definition)
 	}
-	files = append(files, m.Assets.Alerts...)
+	for _, a := range m.Assets.Alerts {
+		files = append(files, a.Definition)
+	}
 	return files
 }
 

@@ -1,0 +1,60 @@
+{
+  "alert": "FuseScope Collector telemetry missing",
+  "version": "v5",
+  "schemaVersion": "v2alpha1",
+  "ruleType": "promql_rule",
+  "alertType": "METRIC_BASED_ALERT",
+  "labels": {
+    "severity": "critical",
+    "integration": "fusescope-collector"
+  },
+  "annotations": {
+    "description": "No telemetry: no row for fusescope-collector for 10 minutes; also fires when it never reported (CUTOVER.md §4).",
+    "summary": "No telemetry from fusescope-collector for 10 minutes: the collector or its self-metrics are down"
+  },
+  "condition": {
+    "compositeQuery": {
+      "queryType": "promql",
+      "panelType": "graph",
+      "queries": [
+        {
+          "type": "promql",
+          "spec": {
+            "name": "A",
+            "query": "absent_over_time(otelcol_process_uptime{\"service.name\"=\"fusescope-collector\"}[10m])",
+            "disabled": false
+          }
+        }
+      ]
+    },
+    "selectedQueryName": "A",
+    "thresholds": {
+      "kind": "basic",
+      "spec": [
+        {
+          "name": "critical",
+          "target": 0,
+          "matchType": "1",
+          "op": "1"
+        }
+      ]
+    }
+  },
+  "evaluation": {
+    "kind": "rolling",
+    "spec": {
+      "evalWindow": "5m",
+      "frequency": "5m"
+    }
+  },
+  "notificationSettings": {
+    "usePolicy": true,
+    "renotify": {
+      "enabled": true,
+      "interval": "4h",
+      "alertStates": [
+        "firing"
+      ]
+    }
+  }
+}

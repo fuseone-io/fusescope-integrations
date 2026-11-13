@@ -24,8 +24,8 @@
   ],
   "properties": {
     "manifest_version": {
-      "description": "Format of this file. The backend reads the current and the previous version.",
-      "const": 1
+      "description": "Format of this file: 2 lists alerts with a stable id. A backend skips a package whose format it does not read; it reads the current and the previous version.",
+      "enum": [1, 2]
     },
     "id": {
       "description": "Integration id served by the API and stored with each installation. Never changes once released.",
@@ -120,9 +120,8 @@
           }
         },
         "alerts": {
-          "description": "Alert rules, one JSON object per file, in the format of the rules API.",
-          "type": ["array", "null"],
-          "items": { "$ref": "#/$defs/path", "pattern": "^assets/alerts/[a-z0-9][a-z0-9_-]*\\.json$" }
+          "description": "Alert rules, one JSON object per file, in the format of the rules API. manifest_version 1 lists the files, which the backend lists but does not provision; 2 lists {id, definition}, provisioned on install and owned by the id.",
+          "type": ["array", "null"]
         }
       }
     },
@@ -144,7 +143,31 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "manifest_version": { "const": 1 } }, "required": ["manifest_version"] },
+      "then": { "properties": { "assets": { "properties": { "alerts": { "items": { "$ref": "#/$defs/alertFile" } } } } } }
+    },
+    {
+      "if": { "properties": { "manifest_version": { "const": 2 } }, "required": ["manifest_version"] },
+      "then": { "properties": { "assets": { "properties": { "alerts": { "items": { "$ref": "#/$defs/alertRef" } } } } } }
+    }
+  ],
   "$defs": {
+    "alertFile": { "$ref": "#/$defs/path", "pattern": "^assets/alerts/[a-z0-9][a-z0-9_-]*\\.json$" },
+    "alertRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "definition"],
+      "properties": {
+        "id": {
+          "description": "Stable id an installation owns the rule by. Never changes once released.",
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "definition": { "$ref": "#/$defs/alertFile" }
+      }
+    },
     "path": {
       "type": "string",
       "not": { "pattern": "(^/|\\.\\.)" }

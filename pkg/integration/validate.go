@@ -103,6 +103,16 @@ func checkManifest(p *Package, add func(string, string, ...any)) {
 		}
 		ids[d.ID] = true
 	}
+	alertIDs := map[string]bool{}
+	for _, a := range m.Assets.Alerts {
+		if a.ID == "" {
+			continue
+		}
+		if alertIDs[a.ID] {
+			add(ManifestFile, "alert id %s is listed twice", a.ID)
+		}
+		alertIDs[a.ID] = true
+	}
 }
 
 // checkFiles requires every referenced file to exist and every file in the
