@@ -1,0 +1,60 @@
+{
+  "alert": "FuseScope Collector RUM without ingest policy",
+  "version": "v5",
+  "schemaVersion": "v2alpha1",
+  "ruleType": "promql_rule",
+  "alertType": "METRIC_BASED_ALERT",
+  "labels": {
+    "severity": "critical",
+    "integration": "fusescope-collector"
+  },
+  "annotations": {
+    "description": "RUM refused with reason no_policy: increases in two checks in a row (structural, needs no baseline) (CUTOVER.md §4).",
+    "summary": "RUM requests on {{index $labels \"host.name\"}} are refused: {{index $labels \"reason\"}}"
+  },
+  "condition": {
+    "compositeQuery": {
+      "queryType": "promql",
+      "panelType": "graph",
+      "queries": [
+        {
+          "type": "promql",
+          "spec": {
+            "name": "A",
+            "query": "(\n  max by (\"host.name\", reason) (increase(otelcol_receiver_rum_requests_refused{\"service.name\"=\"fusescope-collector\", reason=\"no_policy\"}[10m]) > 0 or (otelcol_receiver_rum_requests_refused{\"service.name\"=\"fusescope-collector\", reason=\"no_policy\"} > 0 unless otelcol_receiver_rum_requests_refused{\"service.name\"=\"fusescope-collector\", reason=\"no_policy\"} offset 10m))\n)\nand\n(\n  max by (\"host.name\", reason) (increase(otelcol_receiver_rum_requests_refused{\"service.name\"=\"fusescope-collector\", reason=\"no_policy\"}[10m] offset 10m) > 0 or (otelcol_receiver_rum_requests_refused{\"service.name\"=\"fusescope-collector\", reason=\"no_policy\"} offset 10m > 0 unless otelcol_receiver_rum_requests_refused{\"service.name\"=\"fusescope-collector\", reason=\"no_policy\"} offset 20m))\n)",
+            "disabled": false
+          }
+        }
+      ]
+    },
+    "selectedQueryName": "A",
+    "thresholds": {
+      "kind": "basic",
+      "spec": [
+        {
+          "name": "critical",
+          "target": 0,
+          "matchType": "1",
+          "op": "1"
+        }
+      ]
+    }
+  },
+  "evaluation": {
+    "kind": "rolling",
+    "spec": {
+      "evalWindow": "5m",
+      "frequency": "5m"
+    }
+  },
+  "notificationSettings": {
+    "usePolicy": true,
+    "renotify": {
+      "enabled": true,
+      "interval": "4h",
+      "alertStates": [
+        "firing"
+      ]
+    }
+  }
+}

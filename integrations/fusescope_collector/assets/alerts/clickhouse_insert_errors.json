@@ -1,0 +1,60 @@
+{
+  "alert": "FuseScope Collector ClickHouse insert errors",
+  "version": "v5",
+  "schemaVersion": "v2alpha1",
+  "ruleType": "promql_rule",
+  "alertType": "METRIC_BASED_ALERT",
+  "labels": {
+    "severity": "warning",
+    "integration": "fusescope-collector"
+  },
+  "annotations": {
+    "description": "ClickHouse insert errors: increases in two checks in a row (CUTOVER.md §4).",
+    "summary": "Inserts into {{index $labels \"table\"}} from {{index $labels \"host.name\"}} are failing"
+  },
+  "condition": {
+    "compositeQuery": {
+      "queryType": "promql",
+      "panelType": "graph",
+      "queries": [
+        {
+          "type": "promql",
+          "spec": {
+            "name": "A",
+            "query": "(\n  max by (\"host.name\", table) (increase(otelcol_exporter_fusescope_clickhouse_insert_errors{\"service.name\"=\"fusescope-collector\"}[10m]) > 0 or (otelcol_exporter_fusescope_clickhouse_insert_errors{\"service.name\"=\"fusescope-collector\"} > 0 unless otelcol_exporter_fusescope_clickhouse_insert_errors{\"service.name\"=\"fusescope-collector\"} offset 10m))\n)\nand\n(\n  max by (\"host.name\", table) (increase(otelcol_exporter_fusescope_clickhouse_insert_errors{\"service.name\"=\"fusescope-collector\"}[10m] offset 10m) > 0 or (otelcol_exporter_fusescope_clickhouse_insert_errors{\"service.name\"=\"fusescope-collector\"} offset 10m > 0 unless otelcol_exporter_fusescope_clickhouse_insert_errors{\"service.name\"=\"fusescope-collector\"} offset 20m))\n)",
+            "disabled": false
+          }
+        }
+      ]
+    },
+    "selectedQueryName": "A",
+    "thresholds": {
+      "kind": "basic",
+      "spec": [
+        {
+          "name": "warning",
+          "target": 0,
+          "matchType": "1",
+          "op": "1"
+        }
+      ]
+    }
+  },
+  "evaluation": {
+    "kind": "rolling",
+    "spec": {
+      "evalWindow": "5m",
+      "frequency": "5m"
+    }
+  },
+  "notificationSettings": {
+    "usePolicy": true,
+    "renotify": {
+      "enabled": true,
+      "interval": "4h",
+      "alertStates": [
+        "firing"
+      ]
+    }
+  }
+}

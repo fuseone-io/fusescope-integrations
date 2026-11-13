@@ -1,0 +1,60 @@
+{
+  "alert": "FuseScope Collector failing to receive",
+  "version": "v5",
+  "schemaVersion": "v2alpha1",
+  "ruleType": "promql_rule",
+  "alertType": "METRIC_BASED_ALERT",
+  "labels": {
+    "severity": "critical",
+    "integration": "fusescope-collector"
+  },
+  "annotations": {
+    "description": "Failed receiving: increases in two checks in a row (CUTOVER.md §4).",
+    "summary": "Receiver {{index $labels \"receiver\"}} on {{index $labels \"host.name\"}} is failing to receive data"
+  },
+  "condition": {
+    "compositeQuery": {
+      "queryType": "promql",
+      "panelType": "graph",
+      "queries": [
+        {
+          "type": "promql",
+          "spec": {
+            "name": "A",
+            "query": "(\n  max by (\"host.name\", receiver) (increase(otelcol_receiver_failed_spans{\"service.name\"=\"fusescope-collector\"}[10m]) > 0 or (otelcol_receiver_failed_spans{\"service.name\"=\"fusescope-collector\"} > 0 unless otelcol_receiver_failed_spans{\"service.name\"=\"fusescope-collector\"} offset 10m))\n  or max by (\"host.name\", receiver) (increase(otelcol_receiver_failed_log_records{\"service.name\"=\"fusescope-collector\"}[10m]) > 0 or (otelcol_receiver_failed_log_records{\"service.name\"=\"fusescope-collector\"} > 0 unless otelcol_receiver_failed_log_records{\"service.name\"=\"fusescope-collector\"} offset 10m))\n  or max by (\"host.name\", receiver) (increase(otelcol_receiver_failed_metric_points{\"service.name\"=\"fusescope-collector\"}[10m]) > 0 or (otelcol_receiver_failed_metric_points{\"service.name\"=\"fusescope-collector\"} > 0 unless otelcol_receiver_failed_metric_points{\"service.name\"=\"fusescope-collector\"} offset 10m))\n)\nand\n(\n  max by (\"host.name\", receiver) (increase(otelcol_receiver_failed_spans{\"service.name\"=\"fusescope-collector\"}[10m] offset 10m) > 0 or (otelcol_receiver_failed_spans{\"service.name\"=\"fusescope-collector\"} offset 10m > 0 unless otelcol_receiver_failed_spans{\"service.name\"=\"fusescope-collector\"} offset 20m))\n  or max by (\"host.name\", receiver) (increase(otelcol_receiver_failed_log_records{\"service.name\"=\"fusescope-collector\"}[10m] offset 10m) > 0 or (otelcol_receiver_failed_log_records{\"service.name\"=\"fusescope-collector\"} offset 10m > 0 unless otelcol_receiver_failed_log_records{\"service.name\"=\"fusescope-collector\"} offset 20m))\n  or max by (\"host.name\", receiver) (increase(otelcol_receiver_failed_metric_points{\"service.name\"=\"fusescope-collector\"}[10m] offset 10m) > 0 or (otelcol_receiver_failed_metric_points{\"service.name\"=\"fusescope-collector\"} offset 10m > 0 unless otelcol_receiver_failed_metric_points{\"service.name\"=\"fusescope-collector\"} offset 20m))\n)",
+            "disabled": false
+          }
+        }
+      ]
+    },
+    "selectedQueryName": "A",
+    "thresholds": {
+      "kind": "basic",
+      "spec": [
+        {
+          "name": "critical",
+          "target": 0,
+          "matchType": "1",
+          "op": "1"
+        }
+      ]
+    }
+  },
+  "evaluation": {
+    "kind": "rolling",
+    "spec": {
+      "evalWindow": "5m",
+      "frequency": "5m"
+    }
+  },
+  "notificationSettings": {
+    "usePolicy": true,
+    "renotify": {
+      "enabled": true,
+      "interval": "4h",
+      "alertStates": [
+        "firing"
+      ]
+    }
+  }
+}
